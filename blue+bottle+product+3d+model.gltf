@@ -1,0 +1,122 @@
+{
+  "asset": {
+    "generator": "Tripo",
+    "version": "2.0"
+  },
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "mesh": 0,
+      "name": "tripo_node_6d1c7869-bcf1-4519-94e1-beec89fefe56"
+    }
+  ],
+  "materials": [
+    {
+      "name": "tripo_mat_6d1c7869-bcf1-4519-94e1-beec89fefe56",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicFactor": 0,
+        "roughnessFactor": 0.5
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "tripo_mesh_6d1c7869-bcf1-4519-94e1-beec89fefe56",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "TEXCOORD_0": 1
+          },
+          "indices": 2,
+          "material": 0
+        }
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    }
+  ],
+  "images": [
+    {
+      "name": "bluebottleproduct3dmodel_basecolor",
+      "uri": "blue+bottle+product+3d+model_img0.jpg"
+    }
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "componentType": 5126,
+      "count": 288596,
+      "max": [
+        0.1540679931640625,
+        1,
+        0.1540985107421875
+      ],
+      "min": [
+        -0.154083251953125,
+        0,
+        -0.15399169921875
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 288596,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 2,
+      "componentType": 5125,
+      "count": 1694100,
+      "type": "SCALAR"
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 3463152,
+      "byteOffset": 0,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 2308768,
+      "byteOffset": 3463152,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 6776400,
+      "byteOffset": 5771920,
+      "target": 34963
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987
+    }
+  ],
+  "buffers": [
+    {
+      "uri": "blue+bottle+product+3d+model_data.bin",
+      "byteLength": 12548320
+    }
+  ]
+}
