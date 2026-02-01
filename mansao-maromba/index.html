@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MANSÃO MAROMBA | Digital Energy</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200;900&display=swap" rel="stylesheet">
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+</head>
+
+<body>
+
+    <!-- LAYER 3: Glitch Effects -->
+    <div class="scanlines"></div>
+    <div class="scanlines"></div>
+    <div class="glitch-layer" id="glitchLayer"></div>
+    <!-- Flash Overlay -->
+    <div id="flash-overlay"
+        style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; opacity:0; pointer-events:none;">
+    </div>
+
+    <!-- LAYER 4: Hero Section (Scene 0) -->
+    <section class="hero-section" id="heroSection">
+        <div class="overlay">
+            <div class="brand-stack">
+                <img src="/assets/icon.svg" alt="" class="brand-icon" aria-hidden="true">
+                <img src="/assets/typography.svg" alt="Mansão Maromba" class="brand-title">
+            </div>
+            <p class="brand-subtitle electric-text">SABOR ENERGÉTICO</p>
+            <button class="cta-button" id="ctaButton" onclick="window.scrollTo(0, window.innerHeight)">Explorar
+                Sabores</button>
+        </div>
+
+        <!-- Scroll Hint -->
+        <div class="scroll-hint">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 16l-6-6h12z" />
+            </svg>
+        </div>
+    </section>
+
+    <!-- LAYER 5: Scrollytelling Container -->
+    <div class="scrolly-container">
+        <div class="horizontal-wrapper">
+
+            <!-- Scene 1: Melancia -->
+            <section class="flavor-section" id="flavor-0">
+                <div class="flavor-content">
+                    <h2 class="flavor-title">Melancia<br>Gin Combo</h2>
+                    <p class="flavor-desc">O doce refrescante da melancia com o toque clássico do gin. A vibe certa para
+                        começar o role.</p>
+                    <div class="flavor-specs">
+                        <span>40% TEOR</span>
+                        <span>ZERO AÇÚCAR</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scene 2: Vodka Combo -->
+            <section class="flavor-section" id="flavor-1">
+                <div class="flavor-content right-align">
+                    <h2 class="flavor-title">Vodka<br>Combo</h2>
+                    <p class="flavor-desc">A mistureba original que conquistou o Brasil. Simples, direto e bate onde tem
+                        que
+                        bater.</p>
+                    <div class="flavor-specs">
+                        <span>40% TEOR</span>
+                        <span>ENERGIA PURA</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scene 3: Whisky Combo -->
+            <section class="flavor-section" id="flavor-2">
+                <div class="flavor-content">
+                    <h2 class="flavor-title">Whisky<br>Combo</h2>
+                    <p class="flavor-desc">Para quem prefere o peso do malte. Um clássico reinventado para a geração
+                        hype.
+                    </p>
+                    <div class="flavor-specs">
+                        <span>40% TEOR</span>
+                        <span>PREMIUM</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scene 4: Gin Tropical -->
+            <section class="flavor-section" id="flavor-3">
+                <div class="flavor-content right-align">
+                    <h2 class="flavor-title">Gin<br>Tropical</h2>
+                    <p class="flavor-desc">Do Tigrinho direto para o seu copo. Frutas tropicais explodindo em cada gole.
+                    </p>
+                    <div class="flavor-specs">
+                        <span>40% TEOR</span>
+                        <span>TROPICAL</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scene 5: Whisky Job -->
+            <section class="flavor-section" id="flavor-4">
+                <div class="flavor-content">
+                    <h2 class="flavor-title">Whisky<br>Job</h2>
+                    <p class="flavor-desc">O trabalho duro compensa. Sabor intenso para quem não para nunca.</p>
+                    <div class="flavor-specs">
+                        <span>40% TEOR</span>
+                        <span>INTENSO</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scene 6: Double Darkness -->
+            <section class="flavor-section" id="flavor-5">
+                <div class="flavor-content right-align">
+                    <h2 class="flavor-title">Double<br>Darkness</h2>
+                    <p class="flavor-desc">Escuridão em dobro. O mistério que você quer desvendar.</p>
+                    <div class="flavor-specs">
+                        <span>40% TEOR</span>
+                        <span>MISTERIOSO</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scene 7: Maçã Verde -->
+            <section class="flavor-section" id="flavor-6">
+                <div class="flavor-content">
+                    <h2 class="flavor-title">Whisky<br>Maçã Verde</h2>
+                    <p class="flavor-desc">A acidez da maçã verde cortando o peso do whisky. Perfeitamente equilibrado.
+                    </p>
+                    <div class="flavor-specs">
+                        <span>40% TEOR</span>
+                        <span>ÁCIDO</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scene 8: Finale (Abduction) -->
+            <section class="flavor-section finale-section">
+                <!-- Text that appears after abduction -->
+                <div id="end-text"
+                    style="display: flex; flex-direction: column; align-items: center; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); opacity: 0; pointer-events: none; z-index: 10;">
+                    <img src="assets/icon.svg" alt="Icon"
+                        style="width: 100px; height: 100px; margin-bottom: 20px; filter: drop-shadow(0 0 15px #fff) brightness(0) invert(1);">
+
+                    <div class="glitch-wrapper">
+                        <div class="glitch-text" data-text="EXPLOSÃO" style="font-size: 5rem; line-height: 1;">EXPLOSÃO
+                        </div>
+                    </div>
+                    <div class="glitch-wrapper">
+                        <div class="glitch-text" data-text="EXTRATERRESTRE"
+                            style="font-size: 5rem; line-height: 1; color: var(--electric-pink);">EXTRATERRESTRE</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- GSAP Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+
+    <!-- LAYER 1: Waves Background Container -->
+    <div id="waves-container"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 0; background: #000;"></div>
+
+    <!-- LAYER 2: Three.js Bottles -->
+    <canvas id="bg-canvas"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 1; pointer-events: none;"></canvas>
+
+    <!-- Simplex Noise -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/2.4.0/simplex-noise.min.js"></script>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        // --- THREE.JS SETUP (Foreground Bottles) ---
+        const canvas = document.querySelector('#bg-canvas');
+        const scene = new THREE.Scene();
+
+        // Camera - Initial Position
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 0, 5);
+        camera.lookAt(0, 0, 0);
+
+        // Transparent renderer
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setClearColor(0x000000, 0);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+        scene.add(ambientLight);
+        const pointLight = new THREE.PointLight(0x39FF14, 2, 10);
+        pointLight.position.set(2, 2, 2);
+        scene.add(pointLight);
+        const spotLight = new THREE.SpotLight(0xBC13FE, 5);
+        spotLight.position.set(-2, 3, 2);
+        scene.add(spotLight);
+
+        // --- BOTTLES SETUP ---
+        const textureLoader = new THREE.TextureLoader();
+        const bottlesGroup = new THREE.Group(); // Group to move all bottles together
+        scene.add(bottlesGroup);
+        const bottles = [];
+
+        // All 7 Bottles Paths
+        const bottleImages = [
+            'assets/bottles/Melancia_Gin_Combo.webp',
+            'assets/bottles/Vodka_Combo.webp',
+            'assets/bottles/Whisky_Combo.webp',
+            'assets/bottles/Gin_Combo_do_Tigrinho_Tropical.webp',
+            'assets/bottles/Whisky_Combo_Job.webp',
+            'assets/bottles/Whisky_Combo_Double_Darkness.webp',
+            'assets/bottles/Whisky_Combo_Maçã_Verde.webp'
+        ];
+
+        // --- STARS (Dynamic Shader) --- 
+        let starUniforms = { uTime: { value: 0 } };
+
+        function createStars() {
+            const geometry = new THREE.BufferGeometry();
+            const count = 4000;
+            const posArray = new Float32Array(count * 3);
+            const sizeArray = new Float32Array(count);
+            const phaseArray = new Float32Array(count);
+
+            for (let i = 0; i < count; i++) {
+                // Spread sphere
+                const r = 40 + Math.random() * 60;
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos(2 * Math.random() - 1);
+                posArray[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+                posArray[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+                posArray[i * 3 + 2] = r * Math.cos(phi) - 20; // Shift back
+
+                sizeArray[i] = Math.random() * 2.0;
+                phaseArray[i] = Math.random() * Math.PI * 2;
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            geometry.setAttribute('size', new THREE.BufferAttribute(sizeArray, 1));
+            geometry.setAttribute('phase', new THREE.BufferAttribute(phaseArray, 1));
+
+            const material = new THREE.ShaderMaterial({
+                uniforms: starUniforms,
+                vertexShader: `
+                    uniform float uTime;
+                    attribute float size;
+                    attribute float phase;
+                    varying float vAlpha;
+                    void main() {
+                        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                        gl_Position = projectionMatrix * mvPosition;
+                        
+                        // Twinkle effect
+                        float blink = sin(uTime * 1.5 + phase);
+                        vAlpha = 0.5 + 0.5 * (blink + 1.0) * 0.5;
+                        
+                        // Perspective sizing
+                        gl_PointSize = size * (300.0 / -mvPosition.z);
+                    }
+                `,
+                fragmentShader: `
+                    uniform float uOpacity; // Added uniform for global opacity
+                    varying float vAlpha;
+                    void main() {
+                        vec2 coord = gl_PointCoord - vec2(0.5);
+                        float dist = length(coord);
+                        if(dist > 0.5) discard;
+                        
+                        // Glow center
+                        float glow = 1.0 - (dist * 2.0);
+                        glow = pow(glow, 1.5);
+                        
+                        gl_FragColor = vec4(1.0, 1.0, 1.0, vAlpha * glow * uOpacity);
+                    }
+                `,
+                transparent: true,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending
+            });
+
+            const starsMesh = new THREE.Points(geometry, material);
+            // Wait, ShaderMaterial transparency depends on gl_FragColor alpha.
+            // To fade in/out globally, add uOpacity uniform or use container opacity?
+            // ShaderMaterial doesn't support .opacity property directly unless we put it in uniform.
+            // Let's add uOpacity to starUniforms.
+            starUniforms.uOpacity = { value: 0 };
+            // Update fragment shader to use uOpacity
+            // material.fragmentShader = material.fragmentShader.replace('vAlpha * glow', 'vAlpha * glow * uOpacity'); // This was done in the string directly
+            // Add uOpacity uniform to material
+            material.uniforms.uOpacity = starUniforms.uOpacity;
+
+            return starsMesh;
+        }
+
+        // --- UFO (GLTF) ---
+        function createUFO() {
+            const group = new THREE.Group();
+
+            const loader = new THREE.GLTFLoader();
+            loader.load('assets/ufo/scene.gltf', (gltf) => {
+                const model = gltf.scene;
+                // Adjust scale based on ufo_flying_saucer assets
+                model.scale.set(0.5, 0.5, 0.5);
+                model.position.y = -1;
+                group.add(model);
+            });
+
+            // Initial Pos (Far Left) - Ready for flyby
+            group.position.set(-30, 8, -5);
+            group.visible = false;
+            return group;
+        }
+
+        const stars = createStars();
+        scene.add(stars);
+
+        const ufo = createUFO();
+        scene.add(ufo);
+
+        let abductionTL = null;
+        let abductionState = 'idle'; // idle, playing, done, reversing
+
+        function createAbductionTL() {
+            if (abductionTL) return abductionTL;
+
+            const isMobileAbduction = window.innerWidth <= 768;
+
+            const tl = gsap.timeline({
+                paused: true,
+                onStart: () => { ufo.visible = true; },
+                onComplete: () => { abductionState = 'done'; },
+                onReverseComplete: () => {
+                    abductionState = 'idle';
+                    bottlesGroup.visible = true;
+                    ufo.visible = false;
+                }
+            });
+
+            // 1. UFO Flyby (Right to Left - opposite of intro)
+            tl.fromTo(ufo.position,
+                { x: 60, y: 8, z: -5 },
+                { x: -60, y: 8, z: -5, duration: 3.5, ease: "power1.inOut" },
+                "flyby");
+
+            // Banking (reversed for right-to-left motion)
+            tl.to(ufo.rotation, { z: 0.2, duration: 1.0 }, "flyby");
+            tl.to(ufo.rotation, { z: -0.2, duration: 1.5, yoyo: true, repeat: 1 }, "flyby+=1");
+            tl.to(ufo.rotation, { z: 0, duration: 1.0 }, "flyby+=3");
+
+            // 2. Bottles GATHER (Concurrent with flyby start)
+            // For mobile: Calculate spacing to fit 98vw
+            // Camera FOV is 75deg, at z=5, visible width ≈ 7.7 units
+            // For 7 bottles centered, need 6 gaps: 6 * spacing = total span
+            const mobileSpacing = 0.5; // Very tight for mobile - all 7 fit
+            const desktopSpacing = 1.2; // Wider spacing for desktop
+            const tightSpacing = isMobileAbduction ? mobileSpacing : desktopSpacing;
+
+            // Scale: mobile smaller, desktop larger
+            const mobileScale = 0.35; // Smaller to fit 98vw on mobile
+            const desktopScale = 0.75; // Larger for desktop
+            const bottleScale = isMobileAbduction ? mobileScale : desktopScale;
+
+            const centerIndex = Math.floor(bottles.length / 2);
+
+            // Both mobile and desktop: gather at center (x=0)
+            const targetCenterX = 0;
+
+            // Reset bottlesGroup position to 0 for both mobile and desktop
+            tl.to(bottlesGroup.position, { x: 0, duration: 0.5, ease: "power2.out" }, "flyby");
+
+            bottles.forEach((b, i) => {
+                const offset = (i - centerIndex) * tightSpacing;
+                b.userData.floatStrength = 0.5;
+
+                tl.to(b.position, {
+                    x: targetCenterX + offset,
+                    y: isMobileAbduction ? MOBILE_BOTTLE_Y : 0,
+                    z: 0,
+                    duration: 1.5,
+                    ease: "power2.inOut"
+                }, "flyby+=0.5");
+
+                tl.to(b.scale, {
+                    x: bottleScale,
+                    y: bottleScale,
+                    duration: 1.5,
+                    ease: "power2.inOut"
+                }, "flyby+=0.5");
+
+                tl.to(b.rotation, { z: -0.1, duration: 0.2 }, "flyby+=0.5");
+                tl.to(b.rotation, { z: 0.1, duration: 0.2, yoyo: true, repeat: 4 }, "flyby+=0.7");
+                tl.to(b.rotation, { z: 0, duration: 0.2 }, "flyby+=1.7");
+            });
+
+            // 3. FLASH & DISINTEGRATE
+            tl.to("#flash-overlay", { opacity: 1, duration: 0.3, ease: "power2.in" }, "-=0.2");
+
+            // Flicker
+            tl.to("#flash-overlay", { opacity: 0.3, duration: 0.1, yoyo: true, repeat: 3, ease: "steps(1)" });
+            tl.to("#flash-overlay", { opacity: 1, duration: 0.05 });
+
+            // Disintegrate
+            tl.call(() => { bottlesGroup.visible = false; });
+
+            // Fade out flash
+            tl.to("#flash-overlay", { opacity: 0, duration: 1.5, ease: "power1.out" });
+
+            // 4. Text Reveal - Position at same location as bottles, fade in smoothly
+            // Mobile: Position text at top (where bottles were)
+            // Desktop: Center of screen
+            const endText = document.getElementById('end-text');
+            if (isMobileAbduction && endText) {
+                // Calculate Y position to match bottle Y position
+                // MOBILE_BOTTLE_Y = 0.6 in 3D units, convert to screen percentage
+                // Camera at z=5, FOV 75deg, bottle at y=0.6
+                // Rough conversion: ~35% from top
+                endText.style.top = '35%';
+            }
+
+            // First hide the text (reset state)
+            tl.set("#end-text", { opacity: 0, scale: 0.9 }, 0);
+
+            // Fade in smoothly right after bottles disappear
+            tl.to("#end-text", {
+                opacity: 1,
+                scale: 1,
+                duration: 1.2,
+                ease: "power2.out"
+            }, "-=1.0"); // Start as flash fades
+
+            abductionTL = tl;
+            return tl;
+        }
+
+        // Spacing between bottles in 3D space
+        const BOTTLE_SPACING = 5;
+
+        // Detect mobile for hero positions
+        const isMobileHero = window.innerWidth <= 768;
+
+        // Spawn positions for Hero (Scatter)
+        // Mobile: Tighter spread to fit narrow screen
+        // Desktop: Wider spread
+        const heroPositions = isMobileHero ? [
+            { x: -2.5, y: 0.5, z: 0.8 },
+            { x: -1.5, y: -0.3, z: 1.0 },
+            { x: -0.5, y: 0.3, z: 1.2 },
+            { x: 0.5, y: -0.1, z: 1.5 },
+            { x: 1.5, y: 0.4, z: 1.2 },
+            { x: 2.5, y: -0.2, z: 1.0 },
+            { x: 3.0, y: 0.2, z: 0.8 }
+        ] : [
+            { x: -5.5, y: 0.8, z: 0.5 },
+            { x: -4.0, y: -0.6, z: 0.8 },
+            { x: -2.0, y: 0.5, z: 1.2 },
+            { x: 0.0, y: -0.2, z: 1.5 },
+            { x: 2.0, y: 0.7, z: 1.2 },
+            { x: 4.0, y: -0.5, z: 0.8 },
+            { x: 5.5, y: 0.3, z: 0.5 }
+        ];
+
+        // Create bottle sprite function - UPDATED FOR CONTAINER & FLOATING
+        function createBottleSprite(imagePath, position, index) {
+            textureLoader.load(imagePath, (texture) => {
+                const aspectRatio = texture.image.width / texture.image.height;
+                const height = 3.5;
+                const width = height * aspectRatio;
+                const planeGeo = new THREE.PlaneGeometry(width, height);
+
+                const planeMat = new THREE.ShaderMaterial({
+                    uniforms: {
+                        map: { value: texture },
+                        whiteThreshold: { value: 0.9 }
+                    },
+                    vertexShader: `
+                        varying vec2 vUv;
+                        void main() {
+                            vUv = uv;
+                            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                        }
+                    `,
+                    fragmentShader: `
+                        uniform sampler2D map;
+                        uniform float whiteThreshold;
+                        varying vec2 vUv;
+                        void main() {
+                            vec4 texColor = texture2D(map, vUv);
+                            float brightness = (texColor.r + texColor.g + texColor.b) / 3.0;
+                            float alpha = texColor.a;
+                            if (brightness > whiteThreshold) alpha = 0.0;
+                            if (texColor.r > 0.85 && texColor.g > 0.85 && texColor.b > 0.85) alpha = 0.0;
+                            gl_FragColor = vec4(texColor.rgb, alpha);
+                        }
+                    `,
+                    transparent: true,
+                    side: THREE.FrontSide,
+                    depthWrite: false
+                });
+
+                const bottleMesh = new THREE.Mesh(planeGeo, planeMat);
+                const bottleContainer = new THREE.Group();
+                bottleContainer.add(bottleMesh);
+
+                // 1. Initial Position (Hero Scatter) assigned to Container
+                bottleContainer.position.set(position.x, position.y, position.z);
+
+                // User Data
+                bottleContainer.userData = {
+                    originalScale: 1,
+                    index: index,
+                    heroPos: { ...position },
+                    linearPos: { x: index * BOTTLE_SPACING, y: 0, z: 0 },
+                    // Floating params
+                    speedY: 0.3 + Math.random() * 0.4,
+                    phaseY: Math.random() * Math.PI * 2,
+                    floatStrength: 1.0,
+                    mesh: bottleMesh // Ref to mesh for floating animation
+                };
+
+                bottlesGroup.add(bottleContainer);
+                bottles.push(bottleContainer);
+            });
+        }
+
+        // Load ALL bottles with Hero positions
+        bottleImages.forEach((imagePath, index) => {
+            createBottleSprite(imagePath, heroPositions[index], index);
+        });
+
+        // --- TRANSITION ANIMATION (Hero -> Linear) ---
+        const isMobileDevice = window.innerWidth <= 768;
+
+        // Mobile: Different positions for top-centered bottles
+        const MOBILE_TOP_Y = 0.6; // Lowered to avoid cutting tops
+
+        if (isMobileDevice) {
+            // On mobile, transition bottles to a horizontal line (like desktop)
+            // First bottle at center (x=0), others spaced to the right
+            ScrollTrigger.create({
+                trigger: ".hero-section",
+                start: "top top",
+                end: "bottom top",
+                scrub: 1,
+                onUpdate: (self) => {
+                    const progress = self.progress;
+                    // Ease the transition for smoothness
+                    const easedProgress = gsap.parseEase("power2.inOut")(progress);
+
+                    bottles.forEach((bottle, i) => {
+                        if (!bottle.userData.heroPos) return;
+
+                        const hero = bottle.userData.heroPos;
+                        // Position bottles in a horizontal line
+                        // First bottle at x=0 (center), others spaced to the right
+                        const mobileLinearX = i * BOTTLE_SPACING;
+                        const mobileTarget = { x: mobileLinearX, y: MOBILE_TOP_Y, z: 1.2 };
+
+                        bottle.position.x = THREE.MathUtils.lerp(hero.x, mobileTarget.x, easedProgress);
+                        bottle.position.y = THREE.MathUtils.lerp(hero.y, mobileTarget.y, easedProgress);
+                        bottle.position.z = THREE.MathUtils.lerp(hero.z, mobileTarget.z, easedProgress);
+
+                        bottle.userData.floatStrength = 1 - easedProgress;
+
+                        // Scale bottles: centered one bigger, others normal
+                        const targetScale = i === 0 ? 1.3 : 0.8;
+                        const currentScale = THREE.MathUtils.lerp(1, targetScale, easedProgress);
+                        bottle.scale.setScalar(currentScale);
+                        bottle.visible = true;
+                    });
+
+                    // Reset bottlesGroup position during hero transition
+                    bottlesGroup.position.x = 0;
+                }
+            });
+        } else {
+            // Desktop: Original behavior
+            ScrollTrigger.create({
+                trigger: ".hero-section",
+                start: "top top",
+                end: "bottom top",
+                scrub: 1,
+                onUpdate: (self) => {
+                    const progress = self.progress;
+
+                    bottles.forEach(bottle => {
+                        if (!bottle.userData.heroPos) return;
+
+                        const hero = bottle.userData.heroPos;
+                        const linear = bottle.userData.linearPos;
+
+                        bottle.position.x = THREE.MathUtils.lerp(hero.x, linear.x, progress);
+                        bottle.position.y = THREE.MathUtils.lerp(hero.y, linear.y, progress);
+                        bottle.position.z = THREE.MathUtils.lerp(hero.z, linear.z, progress);
+
+                        bottle.userData.floatStrength = 1 - progress;
+                    });
+                }
+            });
+        }
+
+
+
+        // --- GSAP SCROLL LOGIC ---
+
+        const sections = gsap.utils.toArray(".flavor-section");
+        const isMobile = window.innerWidth <= 768;
+
+        // Mobile: Bottles positioned at top of screen
+        const MOBILE_BOTTLE_Y = 0.6; // Lowered to not cut bottle tops
+
+        let scrollTween;
+
+        if (isMobile) {
+            // === MOBILE: Vertical Scroll with Horizontal Bottle & Text Sliding ===
+
+            // Set linear positions for all bottles (spaced horizontally)
+            bottles.forEach((bottle, i) => {
+                if (bottle.userData) {
+                    bottle.userData.linearPos = { x: i * BOTTLE_SPACING, y: MOBILE_BOTTLE_Y, z: 1.2 };
+                }
+            });
+
+            // Mobile center is at x=0 (not offset like desktop)
+            const mobileCenterX = 0;
+            let currentCenteredBottle = -1; // Start at -1 to force initial update
+            let hasLeftHero = false; // Track if we've scrolled past hero
+
+            // Vertical scroll - slide bottles AND text horizontally based on scroll position
+            ScrollTrigger.create({
+                trigger: ".scrolly-container",
+                start: "top top",
+                end: "bottom bottom",
+                scrub: 1,
+                onUpdate: (self) => {
+                    const progress = self.progress;
+                    const direction = self.direction;
+
+                    // --- FINALE STATE MANAGEMENT ---
+                    if (progress > 0.92) {
+                        if (abductionState === 'idle' && direction > 0) {
+                            abductionState = 'playing';
+                            const tl = createAbductionTL();
+                            tl.play();
+                        }
+                    } else if (progress < 0.90) {
+                        if ((abductionState === 'playing' || abductionState === 'done') && direction < 0) {
+                            abductionState = 'reversing';
+                            if (abductionTL) abductionTL.reverse();
+                        }
+                    }
+
+                    const shouldAnimateBottles = (abductionState === 'idle');
+
+                    // --- ATMOSPHERE ---
+                    // Gradual darkening from middle (0.4) to end (1.0)
+                    // Starts subtle, accelerates towards the end
+                    if (progress > 0.4) {
+                        // Eased darkness: starts slow, accelerates
+                        const rawDarkness = (progress - 0.4) / 0.6; // 0 to 1
+                        const easedDarkness = Math.pow(rawDarkness, 2); // Quadratic ease
+                        if (vibrantWaves) vibrantWaves.darkness = easedDarkness;
+                        // Stars appear gradually in the second half
+                        if (starUniforms.uOpacity) {
+                            const starOpacity = progress > 0.6 ? Math.min(1, (progress - 0.6) / 0.3) : 0;
+                            starUniforms.uOpacity.value = starOpacity;
+                        }
+                    } else {
+                        if (vibrantWaves) vibrantWaves.darkness = 0;
+                        if (starUniforms.uOpacity) starUniforms.uOpacity.value = 0;
+                    }
+
+                    // Calculate which bottle should be centered based on progress
+                    // sections.length - 1 because last section is finale
+                    const bottleCount = sections.length - 1;
+
+                    // Map progress to bottle index (0 to bottleCount-1)
+                    const bottleProgress = progress * bottleCount;
+                    const newCenteredBottle = Math.min(Math.round(bottleProgress), bottleCount - 1);
+
+                    if (shouldAnimateBottles) {
+                        // Slide bottles so current one is at center (x=0)
+                        const targetX = -bottleProgress * BOTTLE_SPACING;
+                        gsap.to(bottlesGroup.position, {
+                            x: targetX,
+                            overwrite: true,
+                            duration: 0.4,
+                            ease: "power2.out"
+                        });
+                    }
+
+                    if (shouldAnimateBottles) {
+                        // Scale/position bottles based on proximity to center
+                        bottles.forEach((bottle, i) => {
+                            const worldX = bottle.position.x + bottlesGroup.position.x;
+                            const dist = Math.abs(worldX - mobileCenterX);
+
+                            let scale = 0.8;
+                            let z = -1;
+
+                            if (dist < 3) {
+                                const ratio = 1 - (dist / 3);
+                                scale = 0.8 + (ratio * 0.5); // 0.8 to 1.3
+                                z = -1 + (ratio * 1.5);
+                            }
+
+                            gsap.to(bottle.scale, { x: scale, y: scale, duration: 0.2 });
+                            gsap.to(bottle.position, { z: z, duration: 0.2 });
+
+                            // Add subtle float during scroll
+                            if (bottle.userData.mesh) {
+                                const scrollFloat = Math.sin(progress * 25 + i * 2) * 0.08;
+                                const scrollSway = Math.cos(progress * 20 + i * 2) * 0.02;
+                                bottle.userData.mesh.position.y = scrollFloat;
+                                bottle.userData.mesh.rotation.z = scrollSway;
+                            }
+                        });
+                    }
+
+                    // Animate text horizontally - slide in from right, out to left
+                    // Hide all text during finale or if still in hero
+                    const isInFinale = progress > 0.88;
+
+                    sections.forEach((section, i) => {
+                        const content = section.querySelector(".flavor-content");
+                        if (!content || i >= bottleCount) return;
+
+                        // Hide text during finale or if still in hero
+                        if (isInFinale || !hasLeftHero) {
+                            gsap.to(content, {
+                                opacity: 0,
+                                duration: 0.3
+                            });
+                            return;
+                        }
+
+                        // Calculate text position based on bottle position
+                        // Text slides with its corresponding bottle
+                        const textOffset = (i - bottleProgress) * 100; // percentage offset
+
+                        if (Math.abs(textOffset) < 100) {
+                            // Text is in view range (-100% to +100%)
+                            gsap.to(content, {
+                                x: textOffset + '%',
+                                opacity: 1 - Math.abs(textOffset) / 100,
+                                duration: 0.3,
+                                ease: "power2.out"
+                            });
+                        } else {
+                            // Text is off-screen
+                            gsap.set(content, {
+                                x: textOffset > 0 ? '100%' : '-100%',
+                                opacity: 0
+                            });
+                        }
+                    });
+
+                    currentCenteredBottle = newCenteredBottle;
+                }
+            });
+
+            // Initialize: hide ALL content (will show when scrolling past hero)
+            sections.forEach((section, i) => {
+                const content = section.querySelector(".flavor-content");
+                if (content) {
+                    gsap.set(content, { opacity: 0, x: '100%' });
+                }
+            });
+
+            // Show text only after leaving hero section
+            ScrollTrigger.create({
+                trigger: ".hero-section",
+                start: "bottom top",
+                onEnter: () => {
+                    hasLeftHero = true;
+                },
+                onLeaveBack: () => {
+                    hasLeftHero = false;
+                    // Hide all text when returning to hero
+                    sections.forEach((section, i) => {
+                        const content = section.querySelector(".flavor-content");
+                        if (content) {
+                            gsap.to(content, { opacity: 0, duration: 0.3 });
+                        }
+                    });
+                }
+            });
+
+        } else {
+            // === DESKTOP: Horizontal Scroll ===
+
+            scrollTween = gsap.to(sections, {
+                xPercent: -100 * (sections.length - 1),
+                ease: "none",
+                scrollTrigger: {
+                    trigger: ".scrolly-container",
+                    pin: true,
+                    scrub: 1,
+                    end: () => "+=" + (document.querySelector(".horizontal-wrapper").offsetWidth),
+                    onUpdate: (self) => {
+                        const progress = self.progress;
+                        const direction = self.direction;
+
+                        // --- FINALE STATE MANAGEMENT ---
+                        if (progress > 0.92) {
+                            if (abductionState === 'idle' && direction > 0) {
+                                abductionState = 'playing';
+                                const tl = createAbductionTL();
+                                tl.play();
+                            }
+                        } else if (progress < 0.90) {
+                            if ((abductionState === 'playing' || abductionState === 'done') && direction < 0) {
+                                abductionState = 'reversing';
+                                if (abductionTL) abductionTL.reverse();
+                            }
+                        }
+
+                        const shouldAnimateBottles = (abductionState === 'idle');
+
+                        // --- ATMOSPHERE ---
+                        // Gradual darkening from middle (0.4) to end (1.0)
+                        // Starts subtle, accelerates towards the end
+                        if (progress > 0.4) {
+                            // Eased darkness: starts slow, accelerates
+                            const rawDarkness = (progress - 0.4) / 0.6; // 0 to 1
+                            const easedDarkness = Math.pow(rawDarkness, 2); // Quadratic ease
+                            if (vibrantWaves) vibrantWaves.darkness = easedDarkness;
+                            // Stars appear gradually in the second half
+                            if (starUniforms.uOpacity) {
+                                const starOpacity = progress > 0.6 ? Math.min(1, (progress - 0.6) / 0.3) : 0;
+                                starUniforms.uOpacity.value = starOpacity;
+                            }
+                        } else {
+                            if (vibrantWaves) vibrantWaves.darkness = 0;
+                            if (starUniforms.uOpacity) starUniforms.uOpacity.value = 0;
+                        }
+
+                        const totalDistance = (sections.length - 1) * BOTTLE_SPACING;
+                        const centerOffset = -2.5;
+
+                        if (shouldAnimateBottles) {
+                            gsap.to(bottlesGroup.position, {
+                                x: -progress * totalDistance + centerOffset,
+                                overwrite: true,
+                                duration: 0.5,
+                                ease: "power2.out"
+                            });
+                        }
+
+                        if (shouldAnimateBottles) {
+                            bottles.forEach((bottle, i) => {
+                                const worldX = bottle.position.x + bottlesGroup.position.x;
+                                const dist = Math.abs(worldX - centerOffset);
+
+                                let scale = 1.0;
+                                let z = -1.0;
+
+                                if (dist < 2.5) {
+                                    const ratio = 1 - (dist / 2.5);
+                                    scale = 1.0 + (ratio * 0.5);
+                                    z = -1.0 + (ratio * 1.0);
+                                }
+
+                                gsap.to(bottle.scale, { x: scale, y: scale, duration: 0.2 });
+                                gsap.to(bottle.position, { z: z, duration: 0.2 });
+
+                                if (bottle.userData.mesh) {
+                                    const scrollFloat = Math.sin(progress * 25 + i * 2) * 0.15;
+                                    const scrollSway = Math.cos(progress * 20 + i * 2) * 0.05;
+                                    bottle.userData.mesh.position.y = scrollFloat;
+                                    bottle.userData.mesh.rotation.z = scrollSway;
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+
+            // Content Fade Animation (Desktop)
+            sections.forEach((section, i) => {
+                const content = section.querySelector(".flavor-content");
+
+                ScrollTrigger.create({
+                    trigger: section,
+                    containerAnimation: scrollTween,
+                    start: "left center",
+                    end: "right center",
+                    onEnter: () => gsap.to(content, { opacity: 1, y: 0, duration: 0.5 }),
+                    onLeave: () => gsap.to(content, { opacity: 0, y: 20, duration: 0.5 }),
+                    onEnterBack: () => gsap.to(content, { opacity: 1, y: 0, duration: 0.5 }),
+                    onLeaveBack: () => gsap.to(content, { opacity: 0, y: 20, duration: 0.5 })
+                });
+            });
+        }
+
+
+        // --- WAVE BACKGROUND (Canvas WebGL with user configuration) ---
+
+        class WaveBackground {
+            constructor(containerSelector) {
+                this.container = document.querySelector(containerSelector);
+
+                // User configuration values
+                this.config = {
+                    waveAmp: 32,
+                    waveSpeed: 0.7,
+                    noiseScale: 1,
+                    octaves: 2,
+                    mouseEffect: 22,
+                    mouseRadius: 294,
+                    mouseSmooth: 7,
+                    contrast: 29,
+                    pink: 100,
+                    cyan: 255,
+                    blackThreshold: 0,
+                    midpoint: 34,
+                    resolution: 3,
+                    // Extended config
+                    noiseTimeX: 0.04,
+                    noiseTimeY: 0.04,
+                    noise2Mix: 0.85,
+                    noise2Scale: 1.8,
+                    mouseWaveFreq: 5,
+                    mouseWaveSpeed: 3.5,
+                    pinkG: 0.5,
+                    pinkB: 0.8,
+                    cyanR: 0.1,
+                    colorIntensity: 0.85,
+                    lineFreq: 51,
+                    lineSharpness: 0.36
+                };
+
+                // Create canvas
+                this.canvas = document.createElement('canvas');
+                this.canvas.style.display = 'block';
+                this.canvas.style.width = '100%';
+                this.canvas.style.height = '100%';
+                this.container.appendChild(this.canvas);
+
+                this.gl = this.canvas.getContext('webgl') || this.canvas.getContext('experimental-webgl');
+
+                if (!this.gl) {
+                    console.error('WebGL not supported');
+                    return;
+                }
+
+                this.mouse = { x: 0.5, y: 0.5, sx: 0.5, sy: 0.5 };
+                this.time = 0;
+
+                this.initShaders();
+                this.initBuffers();
+                this.setSize();
+                this.bindEvents();
+                this.startAnimation();
+            }
+
+            initShaders() {
+                const gl = this.gl;
+
+                // Vertex shader
+                const vsSource = `
+                    attribute vec2 a_position;
+                    void main() {
+                        gl_Position = vec4(a_position, 0.0, 1.0);
+                    }
+                `;
+
+                // Fragment shader - Wave pattern with noise
+                const fsSource = `
+                    precision highp float;
+
+                    uniform vec2 u_resolution;
+                    uniform float u_time;
+                    uniform vec2 u_mouse;
+                    uniform float u_waveAmp;
+                    uniform float u_waveSpeed;
+                    uniform float u_noiseScale;
+                    uniform float u_noiseTimeX;
+                    uniform float u_noiseTimeY;
+                    uniform float u_noise2Mix;
+                    uniform float u_noise2Scale;
+                    uniform float u_mouseEffect;
+                    uniform float u_mouseRadius;
+                    uniform float u_mouseWaveFreq;
+                    uniform float u_mouseWaveSpeed;
+                    uniform float u_contrast;
+                    uniform float u_pink;
+                    uniform float u_cyan;
+                    uniform float u_pinkG;
+                    uniform float u_pinkB;
+                    uniform float u_cyanR;
+                    uniform float u_blackThreshold;
+                    uniform float u_midpoint;
+                    uniform float u_colorIntensity;
+                    uniform float u_lineFreq;
+                    uniform float u_lineSharpness;
+
+                    // Simplex noise functions
+                    vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                    vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                    vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+
+                    float snoise(vec2 v) {
+                        const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+                        vec2 i  = floor(v + dot(v, C.yy));
+                        vec2 x0 = v - i + dot(i, C.xx);
+                        vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+                        vec4 x12 = x0.xyxy + C.xxzz;
+                        x12.xy -= i1;
+                        i = mod289(i);
+                        vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+                        vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+                        m = m*m; m = m*m;
+                        vec3 x = 2.0 * fract(p * C.www) - 1.0;
+                        vec3 h = abs(x) - 0.5;
+                        vec3 ox = floor(x + 0.5);
+                        vec3 a0 = x - ox;
+                        m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
+                        vec3 g;
+                        g.x = a0.x * x0.x + h.x * x0.y;
+                        g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+                        return 130.0 * dot(m, g);
+                    }
+
+                    float fbm(vec2 p, int octaves) {
+                        float value = 0.0;
+                        float amplitude = 0.5;
+                        float frequency = 1.0;
+                        for (int i = 0; i < 4; i++) {
+                            if (i >= octaves) break;
+                            value += amplitude * snoise(p * frequency);
+                            frequency *= 2.0;
+                            amplitude *= 0.5;
+                        }
+                        return value;
+                    }
+
+                    uniform float u_darkness;
+                    void main() {
+                        vec2 uv = gl_FragCoord.xy / u_resolution;
+                        vec2 p = uv * u_noiseScale;
+
+                        // Time-based animation
+                        float t = u_time * u_waveSpeed;
+
+                        // Multi-octave noise for waves
+                        float n1 = fbm(p + vec2(t * u_noiseTimeX, t * u_noiseTimeY), 2);
+                        float n2 = fbm(p * u_noise2Scale + vec2(-t * u_noiseTimeX * 0.7, t * u_noiseTimeY * 1.6), 2);
+                        float wave = (n1 + n2 * u_noise2Mix) * u_waveAmp * 0.01;
+
+                        // Mouse interaction
+                        float dist = distance(uv, u_mouse);
+                        float mouseInfluence = smoothstep(u_mouseRadius * 0.001, 0.0, dist) * u_mouseEffect * 0.01;
+                        wave += mouseInfluence * sin(dist * u_mouseWaveFreq - u_time * u_mouseWaveSpeed) * 0.3;
+
+                        // Wave phase for gradient position
+                        float wavePhase = (uv.y + wave) * u_lineFreq;
+                        float lineVal = sin(wavePhase);
+
+                        // Normalize to 0-1 range for gradient
+                        float gradientPos = (lineVal + 1.0) * 0.5;
+
+                        // Apply sharpness
+                        gradientPos = smoothstep(0.5 - u_lineSharpness * 2.0, 0.5 + u_lineSharpness * 2.0, gradientPos) * 0.5 + gradientPos * 0.5;
+
+                        // Colors: Peak=Pink, Middle=Cyan, Valley=Black
+                        vec3 pink = vec3(u_pink / 255.0, u_pinkG, u_pinkB);
+                        vec3 cyan = vec3(u_cyanR, u_cyan / 255.0, 1.0);
+                        vec3 black = vec3(0.0);
+
+                        // Apply contrast
+                        float contrastVal = u_contrast * 0.01;
+                        float mid = u_midpoint * 0.01;
+                        gradientPos = clamp((gradientPos - mid) * (1.0 + contrastVal) + mid, 0.0, 1.0);
+
+                        // 3-color gradient: black (0) -> cyan (0.5) -> pink (1)
+                        vec3 finalColor;
+                        float threshold = u_blackThreshold * 0.01;
+
+                        if (gradientPos < threshold) {
+                            finalColor = black;
+                        } else if (gradientPos < 0.5) {
+                            float t = (gradientPos - threshold) / (0.5 - threshold);
+                            finalColor = mix(black, cyan, t * u_colorIntensity);
+                        } else {
+                            float t = (gradientPos - 0.5) / 0.5;
+                            finalColor = mix(cyan, pink, t) * u_colorIntensity;
+                        }
+                        
+                        // Apply progressive darkness (Abduction phase)
+                        finalColor = mix(finalColor, vec3(0.0), u_darkness);
+
+                        gl_FragColor = vec4(finalColor, 1.0);
+                    }
+                `;
+
+                const vs = this.createShader(gl.VERTEX_SHADER, vsSource);
+                const fs = this.createShader(gl.FRAGMENT_SHADER, fsSource);
+
+                this.program = gl.createProgram();
+                gl.attachShader(this.program, vs);
+                gl.attachShader(this.program, fs);
+                gl.linkProgram(this.program);
+
+                if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
+                    console.error('Shader program error:', gl.getProgramInfoLog(this.program));
+                }
+
+                // Get uniform locations
+                this.uniforms = {
+                    resolution: gl.getUniformLocation(this.program, 'u_resolution'),
+                    time: gl.getUniformLocation(this.program, 'u_time'),
+                    mouse: gl.getUniformLocation(this.program, 'u_mouse'),
+                    waveAmp: gl.getUniformLocation(this.program, 'u_waveAmp'),
+                    waveSpeed: gl.getUniformLocation(this.program, 'u_waveSpeed'),
+                    noiseScale: gl.getUniformLocation(this.program, 'u_noiseScale'),
+                    noiseTimeX: gl.getUniformLocation(this.program, 'u_noiseTimeX'),
+                    noiseTimeY: gl.getUniformLocation(this.program, 'u_noiseTimeY'),
+                    noise2Mix: gl.getUniformLocation(this.program, 'u_noise2Mix'),
+                    noise2Scale: gl.getUniformLocation(this.program, 'u_noise2Scale'),
+                    mouseEffect: gl.getUniformLocation(this.program, 'u_mouseEffect'),
+                    mouseRadius: gl.getUniformLocation(this.program, 'u_mouseRadius'),
+                    mouseWaveFreq: gl.getUniformLocation(this.program, 'u_mouseWaveFreq'),
+                    mouseWaveSpeed: gl.getUniformLocation(this.program, 'u_mouseWaveSpeed'),
+                    contrast: gl.getUniformLocation(this.program, 'u_contrast'),
+                    pink: gl.getUniformLocation(this.program, 'u_pink'),
+                    cyan: gl.getUniformLocation(this.program, 'u_cyan'),
+                    pinkG: gl.getUniformLocation(this.program, 'u_pinkG'),
+                    pinkB: gl.getUniformLocation(this.program, 'u_pinkB'),
+                    cyanR: gl.getUniformLocation(this.program, 'u_cyanR'),
+                    blackThreshold: gl.getUniformLocation(this.program, 'u_blackThreshold'),
+                    midpoint: gl.getUniformLocation(this.program, 'u_midpoint'),
+                    colorIntensity: gl.getUniformLocation(this.program, 'u_colorIntensity'),
+                    lineFreq: gl.getUniformLocation(this.program, 'u_lineFreq'),
+                    lineSharpness: gl.getUniformLocation(this.program, 'u_lineSharpness'),
+                    darkness: gl.getUniformLocation(this.program, 'u_darkness') // New Uniform
+                };
+            }
+
+            createShader(type, source) {
+                const gl = this.gl;
+                const shader = gl.createShader(type);
+                gl.shaderSource(shader, source);
+                gl.compileShader(shader);
+                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                    console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+                    gl.deleteShader(shader);
+                    return null;
+                }
+                return shader;
+            }
+
+            initBuffers() {
+                const gl = this.gl;
+
+                // Full-screen quad
+                const positions = new Float32Array([
+                    -1, -1, 1, -1, -1, 1,
+                    -1, 1, 1, -1, 1, 1
+                ]);
+
+                const buffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+                gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+
+                const posLoc = gl.getAttribLocation(this.program, 'a_position');
+                gl.enableVertexAttribArray(posLoc);
+                gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+            }
+
+            setSize() {
+                const rect = this.container.getBoundingClientRect();
+                const dpr = Math.min(window.devicePixelRatio, 2) / this.config.resolution;
+                this.canvas.width = rect.width * dpr;
+                this.canvas.height = rect.height * dpr;
+                this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+            }
+
+            bindEvents() {
+                window.addEventListener('resize', () => this.setSize());
+
+                const smoothFactor = this.config.mouseSmooth * 0.01;
+
+                window.addEventListener('mousemove', (e) => {
+                    this.mouse.x = e.clientX / window.innerWidth;
+                    this.mouse.y = 1.0 - (e.clientY / window.innerHeight);
+                });
+
+                this.container.addEventListener('touchmove', (e) => {
+                    const touch = e.touches[0];
+                    this.mouse.x = touch.clientX / window.innerWidth;
+                    this.mouse.y = 1.0 - (touch.clientY / window.innerHeight);
+                }, { passive: true });
+            }
+
+            render() {
+                const gl = this.gl;
+                const c = this.config;
+
+                // Smooth mouse
+                const smooth = c.mouseSmooth * 0.01;
+                this.mouse.sx += (this.mouse.x - this.mouse.sx) * smooth;
+                this.mouse.sy += (this.mouse.y - this.mouse.sy) * smooth;
+
+                gl.useProgram(this.program);
+
+                // Set uniforms
+                gl.uniform2f(this.uniforms.resolution, this.canvas.width, this.canvas.height);
+                gl.uniform1f(this.uniforms.time, this.time);
+                gl.uniform2f(this.uniforms.mouse, this.mouse.sx, this.mouse.sy);
+                gl.uniform1f(this.uniforms.waveAmp, c.waveAmp);
+                gl.uniform1f(this.uniforms.waveSpeed, c.waveSpeed);
+                gl.uniform1f(this.uniforms.noiseScale, c.noiseScale);
+                gl.uniform1f(this.uniforms.noiseTimeX, c.noiseTimeX);
+                gl.uniform1f(this.uniforms.noiseTimeY, c.noiseTimeY);
+                gl.uniform1f(this.uniforms.noise2Mix, c.noise2Mix);
+                gl.uniform1f(this.uniforms.noise2Scale, c.noise2Scale);
+                gl.uniform1f(this.uniforms.mouseEffect, c.mouseEffect);
+                gl.uniform1f(this.uniforms.mouseRadius, c.mouseRadius);
+                gl.uniform1f(this.uniforms.mouseWaveFreq, c.mouseWaveFreq);
+                gl.uniform1f(this.uniforms.mouseWaveSpeed, c.mouseWaveSpeed);
+                gl.uniform1f(this.uniforms.contrast, c.contrast);
+                gl.uniform1f(this.uniforms.pink, c.pink);
+                gl.uniform1f(this.uniforms.cyan, c.cyan);
+                gl.uniform1f(this.uniforms.pinkG, c.pinkG);
+                gl.uniform1f(this.uniforms.pinkB, c.pinkB);
+                gl.uniform1f(this.uniforms.cyanR, c.cyanR);
+                gl.uniform1f(this.uniforms.blackThreshold, c.blackThreshold);
+                gl.uniform1f(this.uniforms.midpoint, c.midpoint);
+                gl.uniform1f(this.uniforms.colorIntensity, c.colorIntensity);
+                gl.uniform1f(this.uniforms.lineFreq, c.lineFreq);
+                gl.uniform1f(this.uniforms.lineSharpness, c.lineSharpness);
+                gl.uniform1f(this.uniforms.darkness, this.darkness || 0.0);
+
+                gl.drawArrays(gl.TRIANGLES, 0, 6);
+            }
+
+            startAnimation() {
+                const animate = (timestamp) => {
+                    this.time = timestamp * 0.001; // Convert to seconds, smooth progression
+                    this.render();
+                    requestAnimationFrame(animate);
+                };
+                requestAnimationFrame(animate);
+            }
+        }
+
+        // Initialize Wave Background with user configuration
+        const vibrantWaves = new WaveBackground('#waves-container');
+
+        // --- ANIMATION CLOCK ---
+        const clock = new THREE.Clock();
+
+        // Mouse Tracking for Hero
+        const heroMouse = { x: 999, y: 999 };
+        window.addEventListener('mousemove', (e) => {
+            heroMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            heroMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        // Floating Animation (Hero Phase)
+        function animateFloating(elapsedTime) {
+            bottles.forEach(bottle => {
+                const data = bottle.userData;
+
+                // Only animate if floating is active (Hero)
+                if (!data.mesh || !data.floatStrength || data.floatStrength <= 0.01) return;
+
+                const strength = data.floatStrength;
+
+                // 1. Base Float & Sway
+                let floatY = Math.sin(elapsedTime * 2 + data.phaseY) * 0.1;
+                let rotateZ = Math.sin(elapsedTime * 1.5 + data.phaseY) * 0.05;
+
+                // 2. Mouse Interaction (Repulsion & Tilt)
+                // Map mouse to approx world coordinates at Z=0
+                const mouseWX = heroMouse.x * 8.0;
+                const mouseWY = heroMouse.y * 4.5;
+
+                const dx = mouseWX - bottle.position.x;
+                const dy = mouseWY - bottle.position.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < 3.0) {
+                    const force = (3.0 - dist) * 0.2; // Gentle force
+                    // Push Y (Repel vertical)
+                    floatY -= (dy / dist) * force;
+                    // Tilt (Rotate based on horizontal push)
+                    rotateZ -= (dx / dist) * force * 0.8;
+                }
+
+                // Apply weighted by transition strength
+                data.mesh.position.y = floatY * strength;
+                data.mesh.rotation.z = rotateZ * strength;
+            });
+        }
+
+        // --- RENDER LOOP ---
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const elapsedTime = clock.getElapsedTime();
+            if (starUniforms) starUniforms.uTime.value = elapsedTime;
+
+            animateFloating(elapsedTime);
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // --- UFO INTRO FLYBY (Hero Section) ---
+        function createIntroFlyby() {
+            const introTL = gsap.timeline({
+                delay: 1.5, // Wait for page to load
+                onStart: () => {
+                    ufo.visible = true;
+                    ufo.position.set(-35, 6, -3); // Start further left, closer to camera
+                },
+                onComplete: () => {
+                    ufo.visible = false;
+                    // Reset position for finale
+                    ufo.position.set(-30, 8, -5);
+                }
+            });
+
+            // UFO flies from left to right across hero
+            introTL.to(ufo.position, {
+                x: 50, // Exit to the right
+                y: 5, // Slight dip as it crosses
+                duration: 3.0,
+                ease: "power1.inOut"
+            }, "intro");
+
+            // Banking effect - tilt into the turn
+            introTL.fromTo(ufo.rotation,
+                { z: 0.15 }, // Starting bank
+                { z: -0.1, duration: 1.5, ease: "power2.inOut" },
+                "intro"
+            );
+            introTL.to(ufo.rotation, {
+                z: 0.15,
+                duration: 1.5,
+                ease: "power2.inOut"
+            }, "intro+=1.5");
+
+            // Subtle hover wobble
+            introTL.to(ufo.position, {
+                y: "+=0.3",
+                duration: 0.4,
+                yoyo: true,
+                repeat: 3,
+                ease: "sine.inOut"
+            }, "intro+=0.5");
+        }
+
+        // Start intro flyby when page loads
+        window.addEventListener('load', createIntroFlyby);
+
+        // Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- GLITCH SYNC ---
+        const glitchLayer = document.getElementById('glitchLayer');
+        const brandTitle = document.querySelector('.brand-title');
+        setInterval(() => {
+            if (Math.random() < 0.02) {
+                glitchLayer.classList.add('active');
+                if (brandTitle) brandTitle.classList.add('glitch');
+                setTimeout(() => {
+                    glitchLayer.classList.remove('active');
+                    if (brandTitle) brandTitle.classList.remove('glitch');
+                }, 150);
+            }
+        }, 100);
+
+    </script>
+</body>
+
+</html>

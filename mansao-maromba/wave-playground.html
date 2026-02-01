@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wave Background Playground</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            grid-template-rows: 1fr auto;
+            height: 100vh;
+        }
+
+        /* Controls Panel */
+        .controls {
+            background: #111;
+            border-right: 1px solid #222;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .controls h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #fff;
+        }
+
+        .section {
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #222;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #888;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+        }
+
+        .section-title.wave::before { background: #ff6b9d; }
+        .section-title.noise::before { background: #9d6bff; }
+        .section-title.mouse::before { background: #6bff9d; }
+        .section-title.colors::before { background: #ffb86b; }
+        .section-title.lines::before { background: #6bd4ff; }
+        .section-title.perf::before { background: #ff6b6b; }
+
+        .control-group {
+            margin-bottom: 14px;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .control-label span {
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .control-value {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 11px;
+            color: #6bffff;
+            background: #1a1a1a;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: #222;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        input[type="color"] {
+            width: 100%;
+            height: 32px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: #222;
+        }
+
+        /* Presets */
+        .presets {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .preset-btn {
+            padding: 8px 10px;
+            font-size: 11px;
+            font-weight: 500;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: #ccc;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .preset-btn:hover {
+            background: #252525;
+            border-color: #444;
+            color: #fff;
+        }
+
+        .preset-btn.active {
+            background: #333;
+            border-color: #6bffff;
+            color: #6bffff;
+        }
+
+        /* Preview Area */
+        .preview-area {
+            position: relative;
+            background: #000;
+            overflow: hidden;
+        }
+
+        #preview-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .preview-info {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(0,0,0,0.7);
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-family: monospace;
+            color: #888;
+        }
+
+        /* Output Panel */
+        .output-panel {
+            grid-column: 1 / -1;
+            background: #0d0d0d;
+            border-top: 1px solid #222;
+            padding: 16px 20px;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .output-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .copy-btn {
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #6bffff;
+            border: none;
+            border-radius: 4px;
+            color: #000;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .copy-btn:hover {
+            background: #8fffff;
+            transform: translateY(-1px);
+        }
+
+        .copy-btn.copied {
+            background: #6bff9d;
+        }
+
+        .output-content {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #ccc;
+            background: #111;
+            padding: 12px 16px;
+            border-radius: 6px;
+            max-height: 120px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #111;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Controls -->
+        <div class="controls">
+            <h1>Wave Playground</h1>
+
+            <!-- Presets -->
+            <div class="section">
+                <div class="section-title">Presets</div>
+                <div class="presets">
+                    <button class="preset-btn" onclick="applyPreset('default')">Original</button>
+                    <button class="preset-btn" onclick="applyPreset('calm')">Calm</button>
+                    <button class="preset-btn" onclick="applyPreset('intense')">Intense</button>
+                    <button class="preset-btn" onclick="applyPreset('minimal')">Minimal</button>
+                    <button class="preset-btn" onclick="applyPreset('psychedelic')">Psychedelic</button>
+                    <button class="preset-btn" onclick="applyPreset('ocean')">Ocean</button>
+                </div>
+            </div>
+
+            <!-- Wave Movement -->
+            <div class="section">
+                <div class="section-title wave">Wave Movement</div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Wave Amplitude</span>
+                        <span class="control-value" id="waveAmp-val">18</span>
+                    </div>
+                    <input type="range" id="waveAmp" min="1" max="50" value="18" step="1">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Wave Speed</span>
+                        <span class="control-value" id="waveSpeed-val">0.8</span>
+                    </div>
+                    <input type="range" id="waveSpeed" min="0.1" max="3" value="0.8" step="0.1">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Noise Time X</span>
+                        <span class="control-value" id="noiseTimeX-val">0.15</span>
+                    </div>
+                    <input type="range" id="noiseTimeX" min="0.01" max="0.5" value="0.15" step="0.01">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Noise Time Y</span>
+                        <span class="control-value" id="noiseTimeY-val">0.05</span>
+                    </div>
+                    <input type="range" id="noiseTimeY" min="0.01" max="0.3" value="0.05" step="0.01">
+                </div>
+            </div>
+
+            <!-- Noise Settings -->
+            <div class="section">
+                <div class="section-title noise">Noise Settings</div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Noise Scale</span>
+                        <span class="control-value" id="noiseScale-val">1</span>
+                    </div>
+                    <input type="range" id="noiseScale" min="0.1" max="5" value="1" step="0.1">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Octaves</span>
+                        <span class="control-value" id="octaves-val">2</span>
+                    </div>
+                    <input type="range" id="octaves" min="1" max="4" value="2" step="1">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Secondary Noise Mix</span>
+                        <span class="control-value" id="noise2Mix-val">0.5</span>
+                    </div>
+                    <input type="range" id="noise2Mix" min="0" max="1" value="0.5" step="0.05">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Secondary Noise Scale</span>
+                        <span class="control-value" id="noise2Scale-val">1.5</span>
+                    </div>
+                    <input type="range" id="noise2Scale" min="0.5" max="3" value="1.5" step="0.1">
+                </div>
+            </div>
+
+            <!-- Mouse Interaction -->
+            <div class="section">
+                <div class="section-title mouse">Mouse Interaction</div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Mouse Effect</span>
+                        <span class="control-value" id="mouseEffect-val">33</span>
+                    </div>
+                    <input type="range" id="mouseEffect" min="0" max="100" value="33" step="1">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Mouse Radius</span>
+                        <span class="control-value" id="mouseRadius-val">213</span>
+                    </div>
+                    <input type="range" id="mouseRadius" min="50" max="500" value="213" step="1">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Mouse Smooth</span>
+                        <span class="control-value" id="mouseSmooth-val">17</span>
+                    </div>
+                    <input type="range" id="mouseSmooth" min="1" max="50" value="17" step="1">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Mouse Wave Frequency</span>
+                        <span class="control-value" id="mouseWaveFreq-val">30</span>
+                    </div>
+                    <input type="range" id="mouseWaveFreq" min="5" max="100" value="30" step="1">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Mouse Wave Speed</span>
+                        <span class="control-value" id="mouseWaveSpeed-val">2</span>
+                    </div>
+                    <input type="range" id="mouseWaveSpeed" min="0.5" max="10" value="2" step="0.5">
+                </div>
+            </div>
+
+            <!-- Colors -->
+            <div class="section">
+                <div class="section-title colors">Colors</div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Pink (R)</span>
+                        <span class="control-value" id="pink-val">255</span>
+                    </div>
+                    <input type="range" id="pink" min="0" max="255" value="255" step="1">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Cyan (G)</span>
+                        <span class="control-value" id="cyan-val">218</span>
+                    </div>
+                    <input type="range" id="cyan" min="0" max="255" value="218" step="1">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Pink Green Component</span>
+                        <span class="control-value" id="pinkG-val">0.2</span>
+                    </div>
+                    <input type="range" id="pinkG" min="0" max="1" value="0.2" step="0.05">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Pink Blue Component</span>
+                        <span class="control-value" id="pinkB-val">0.6</span>
+                    </div>
+                    <input type="range" id="pinkB" min="0" max="1" value="0.6" step="0.05">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Cyan Red Component</span>
+                        <span class="control-value" id="cyanR-val">0.2</span>
+                    </div>
+                    <input type="range" id="cyanR" min="0" max="1" value="0.2" step="0.05">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Contrast</span>
+                        <span class="control-value" id="contrast-val">27</span>
+                    </div>
+                    <input type="range" id="contrast" min="0" max="100" value="27" step="1">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Black Threshold</span>
+                        <span class="control-value" id="blackThreshold-val">9</span>
+                    </div>
+                    <input type="range" id="blackThreshold" min="0" max="50" value="9" step="1">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Midpoint</span>
+                        <span class="control-value" id="midpoint-val">42</span>
+                    </div>
+                    <input type="range" id="midpoint" min="0" max="100" value="42" step="1">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Color Intensity</span>
+                        <span class="control-value" id="colorIntensity-val">0.7</span>
+                    </div>
+                    <input type="range" id="colorIntensity" min="0.1" max="1" value="0.7" step="0.05">
+                </div>
+            </div>
+
+            <!-- Line Pattern -->
+            <div class="section">
+                <div class="section-title lines">Line Pattern</div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Line Frequency</span>
+                        <span class="control-value" id="lineFreq-val">80</span>
+                    </div>
+                    <input type="range" id="lineFreq" min="20" max="200" value="80" step="1">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Line Sharpness</span>
+                        <span class="control-value" id="lineSharpness-val">0.1</span>
+                    </div>
+                    <input type="range" id="lineSharpness" min="0.01" max="0.5" value="0.1" step="0.01">
+                </div>
+            </div>
+
+            <!-- Performance -->
+            <div class="section">
+                <div class="section-title perf">Performance</div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Resolution Divider</span>
+                        <span class="control-value" id="resolution-val">4</span>
+                    </div>
+                    <input type="range" id="resolution" min="1" max="8" value="4" step="1">
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview -->
+        <div class="preview-area">
+            <canvas id="preview-canvas"></canvas>
+            <div class="preview-info" id="fps-counter">FPS: --</div>
+        </div>
+
+        <!-- Output -->
+        <div class="output-panel">
+            <div class="output-header">
+                <span class="output-title">Configuration Output</span>
+                <button class="copy-btn" id="copy-btn" onclick="copyConfig()">Copy Config</button>
+            </div>
+            <div class="output-content" id="output"></div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        const state = {
+            // Wave Movement
+            waveAmp: 18,
+            waveSpeed: 0.8,
+            noiseTimeX: 0.15,
+            noiseTimeY: 0.05,
+            // Noise Settings
+            noiseScale: 1,
+            octaves: 2,
+            noise2Mix: 0.5,
+            noise2Scale: 1.5,
+            // Mouse Interaction
+            mouseEffect: 33,
+            mouseRadius: 213,
+            mouseSmooth: 17,
+            mouseWaveFreq: 30,
+            mouseWaveSpeed: 2,
+            // Colors
+            pink: 255,
+            cyan: 218,
+            pinkG: 0.2,
+            pinkB: 0.6,
+            cyanR: 0.2,
+            contrast: 27,
+            blackThreshold: 9,
+            midpoint: 42,
+            colorIntensity: 0.7,
+            // Line Pattern
+            lineFreq: 80,
+            lineSharpness: 0.1,
+            // Performance
+            resolution: 4
+        };
+
+        const DEFAULTS = { ...state };
+
+        // Presets
+        const presets = {
+            default: { ...DEFAULTS },
+            calm: {
+                waveAmp: 10, waveSpeed: 0.3, noiseTimeX: 0.08, noiseTimeY: 0.03,
+                noiseScale: 0.8, octaves: 2, noise2Mix: 0.3, noise2Scale: 1.2,
+                mouseEffect: 20, mouseRadius: 300, mouseSmooth: 25, mouseWaveFreq: 20, mouseWaveSpeed: 1,
+                pink: 200, cyan: 180, pinkG: 0.3, pinkB: 0.5, cyanR: 0.25,
+                contrast: 15, blackThreshold: 5, midpoint: 50, colorIntensity: 0.6,
+                lineFreq: 60, lineSharpness: 0.15, resolution: 4
+            },
+            intense: {
+                waveAmp: 35, waveSpeed: 1.5, noiseTimeX: 0.25, noiseTimeY: 0.12,
+                noiseScale: 1.5, octaves: 3, noise2Mix: 0.7, noise2Scale: 2,
+                mouseEffect: 60, mouseRadius: 180, mouseSmooth: 10, mouseWaveFreq: 50, mouseWaveSpeed: 5,
+                pink: 255, cyan: 255, pinkG: 0.1, pinkB: 0.8, cyanR: 0.1,
+                contrast: 50, blackThreshold: 15, midpoint: 35, colorIntensity: 0.9,
+                lineFreq: 100, lineSharpness: 0.05, resolution: 2
+            },
+            minimal: {
+                waveAmp: 8, waveSpeed: 0.4, noiseTimeX: 0.1, noiseTimeY: 0.04,
+                noiseScale: 0.6, octaves: 1, noise2Mix: 0.2, noise2Scale: 1,
+                mouseEffect: 15, mouseRadius: 250, mouseSmooth: 30, mouseWaveFreq: 15, mouseWaveSpeed: 1,
+                pink: 150, cyan: 150, pinkG: 0.4, pinkB: 0.4, cyanR: 0.4,
+                contrast: 10, blackThreshold: 3, midpoint: 55, colorIntensity: 0.5,
+                lineFreq: 50, lineSharpness: 0.2, resolution: 4
+            },
+            psychedelic: {
+                waveAmp: 40, waveSpeed: 2, noiseTimeX: 0.3, noiseTimeY: 0.2,
+                noiseScale: 2, octaves: 4, noise2Mix: 0.8, noise2Scale: 2.5,
+                mouseEffect: 80, mouseRadius: 150, mouseSmooth: 8, mouseWaveFreq: 80, mouseWaveSpeed: 8,
+                pink: 255, cyan: 255, pinkG: 0.0, pinkB: 1, cyanR: 0.0,
+                contrast: 70, blackThreshold: 20, midpoint: 30, colorIntensity: 1,
+                lineFreq: 120, lineSharpness: 0.03, resolution: 2
+            },
+            ocean: {
+                waveAmp: 20, waveSpeed: 0.5, noiseTimeX: 0.12, noiseTimeY: 0.08,
+                noiseScale: 1.2, octaves: 3, noise2Mix: 0.6, noise2Scale: 1.8,
+                mouseEffect: 40, mouseRadius: 200, mouseSmooth: 20, mouseWaveFreq: 25, mouseWaveSpeed: 2,
+                pink: 100, cyan: 255, pinkG: 0.5, pinkB: 0.8, cyanR: 0.1,
+                contrast: 30, blackThreshold: 8, midpoint: 45, colorIntensity: 0.75,
+                lineFreq: 70, lineSharpness: 0.12, resolution: 3
+            }
+        };
+
+        // WebGL Setup
+        const canvas = document.getElementById('preview-canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        let program, uniforms;
+        let mouse = { x: 0.5, y: 0.5, sx: 0.5, sy: 0.5 };
+        let animTime = 0;
+        let lastTime = 0;
+        let frameCount = 0;
+        let fps = 0;
+
+        function initWebGL() {
+            const vsSource = `
+                attribute vec2 a_position;
+                void main() {
+                    gl_Position = vec4(a_position, 0.0, 1.0);
+                }
+            `;
+
+            const fsSource = `
+                precision highp float;
+
+                uniform vec2 u_resolution;
+                uniform float u_time;
+                uniform vec2 u_mouse;
+                uniform float u_waveAmp;
+                uniform float u_waveSpeed;
+                uniform float u_noiseScale;
+                uniform float u_noiseTimeX;
+                uniform float u_noiseTimeY;
+                uniform int u_octaves;
+                uniform float u_noise2Mix;
+                uniform float u_noise2Scale;
+                uniform float u_mouseEffect;
+                uniform float u_mouseRadius;
+                uniform float u_mouseWaveFreq;
+                uniform float u_mouseWaveSpeed;
+                uniform float u_pink;
+                uniform float u_cyan;
+                uniform float u_pinkG;
+                uniform float u_pinkB;
+                uniform float u_cyanR;
+                uniform float u_contrast;
+                uniform float u_blackThreshold;
+                uniform float u_midpoint;
+                uniform float u_colorIntensity;
+                uniform float u_lineFreq;
+                uniform float u_lineSharpness;
+
+                vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+
+                float snoise(vec2 v) {
+                    const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+                    vec2 i = floor(v + dot(v, C.yy));
+                    vec2 x0 = v - i + dot(i, C.xx);
+                    vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+                    vec4 x12 = x0.xyxy + C.xxzz;
+                    x12.xy -= i1;
+                    i = mod289(i);
+                    vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+                    vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+                    m = m*m; m = m*m;
+                    vec3 x = 2.0 * fract(p * C.www) - 1.0;
+                    vec3 h = abs(x) - 0.5;
+                    vec3 ox = floor(x + 0.5);
+                    vec3 a0 = x - ox;
+                    m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
+                    vec3 g;
+                    g.x = a0.x * x0.x + h.x * x0.y;
+                    g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+                    return 130.0 * dot(m, g);
+                }
+
+                float fbm(vec2 p, int octaves) {
+                    float value = 0.0;
+                    float amplitude = 0.5;
+                    float frequency = 1.0;
+                    for (int i = 0; i < 4; i++) {
+                        if (i >= octaves) break;
+                        value += amplitude * snoise(p * frequency);
+                        frequency *= 2.0;
+                        amplitude *= 0.5;
+                    }
+                    return value;
+                }
+
+                void main() {
+                    vec2 uv = gl_FragCoord.xy / u_resolution;
+                    vec2 p = uv * u_noiseScale;
+
+                    float t = u_time * u_waveSpeed;
+
+                    float n1 = fbm(p + vec2(t * u_noiseTimeX, t * u_noiseTimeY), u_octaves);
+                    float n2 = fbm(p * u_noise2Scale + vec2(-t * u_noiseTimeX * 0.7, t * u_noiseTimeY * 1.6), u_octaves);
+                    float wave = (n1 + n2 * u_noise2Mix) * u_waveAmp * 0.01;
+
+                    float dist = distance(uv, u_mouse);
+                    float mouseInfluence = smoothstep(u_mouseRadius * 0.001, 0.0, dist) * u_mouseEffect * 0.01;
+                    wave += mouseInfluence * sin(dist * u_mouseWaveFreq - u_time * u_mouseWaveSpeed) * 0.3;
+
+                    // Wave phase for gradient position
+                    float wavePhase = (uv.y + wave) * u_lineFreq;
+                    float lineVal = sin(wavePhase);
+
+                    // Normalize to 0-1 range for gradient
+                    float gradientPos = (lineVal + 1.0) * 0.5;
+
+                    // Apply sharpness
+                    gradientPos = smoothstep(0.5 - u_lineSharpness * 2.0, 0.5 + u_lineSharpness * 2.0, gradientPos) * 0.5 + gradientPos * 0.5;
+
+                    // Colors: Peak=Pink, Middle=Cyan, Valley=Black
+                    vec3 pink = vec3(u_pink / 255.0, u_pinkG, u_pinkB);
+                    vec3 cyan = vec3(u_cyanR, u_cyan / 255.0, 1.0);
+                    vec3 black = vec3(0.0);
+
+                    // Apply contrast
+                    float contrastVal = u_contrast * 0.01;
+                    float mid = u_midpoint * 0.01;
+                    gradientPos = clamp((gradientPos - mid) * (1.0 + contrastVal) + mid, 0.0, 1.0);
+
+                    // 3-color gradient: black (0) -> cyan (0.5) -> pink (1)
+                    vec3 finalColor;
+                    float threshold = u_blackThreshold * 0.01;
+
+                    if (gradientPos < threshold) {
+                        // Below threshold = pure black
+                        finalColor = black;
+                    } else if (gradientPos < 0.5) {
+                        // Bottom to middle: black -> cyan
+                        float t = (gradientPos - threshold) / (0.5 - threshold);
+                        finalColor = mix(black, cyan, t * u_colorIntensity);
+                    } else {
+                        // Middle to peak: cyan -> pink
+                        float t = (gradientPos - 0.5) / 0.5;
+                        finalColor = mix(cyan, pink, t) * u_colorIntensity;
+                    }
+
+                    gl_FragColor = vec4(finalColor, 1.0);
+                }
+            `;
+
+            const vs = createShader(gl.VERTEX_SHADER, vsSource);
+            const fs = createShader(gl.FRAGMENT_SHADER, fsSource);
+
+            program = gl.createProgram();
+            gl.attachShader(program, vs);
+            gl.attachShader(program, fs);
+            gl.linkProgram(program);
+
+            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                console.error('Shader program error:', gl.getProgramInfoLog(program));
+            }
+
+            // Uniforms
+            uniforms = {
+                resolution: gl.getUniformLocation(program, 'u_resolution'),
+                time: gl.getUniformLocation(program, 'u_time'),
+                mouse: gl.getUniformLocation(program, 'u_mouse'),
+                waveAmp: gl.getUniformLocation(program, 'u_waveAmp'),
+                waveSpeed: gl.getUniformLocation(program, 'u_waveSpeed'),
+                noiseScale: gl.getUniformLocation(program, 'u_noiseScale'),
+                noiseTimeX: gl.getUniformLocation(program, 'u_noiseTimeX'),
+                noiseTimeY: gl.getUniformLocation(program, 'u_noiseTimeY'),
+                octaves: gl.getUniformLocation(program, 'u_octaves'),
+                noise2Mix: gl.getUniformLocation(program, 'u_noise2Mix'),
+                noise2Scale: gl.getUniformLocation(program, 'u_noise2Scale'),
+                mouseEffect: gl.getUniformLocation(program, 'u_mouseEffect'),
+                mouseRadius: gl.getUniformLocation(program, 'u_mouseRadius'),
+                mouseWaveFreq: gl.getUniformLocation(program, 'u_mouseWaveFreq'),
+                mouseWaveSpeed: gl.getUniformLocation(program, 'u_mouseWaveSpeed'),
+                pink: gl.getUniformLocation(program, 'u_pink'),
+                cyan: gl.getUniformLocation(program, 'u_cyan'),
+                pinkG: gl.getUniformLocation(program, 'u_pinkG'),
+                pinkB: gl.getUniformLocation(program, 'u_pinkB'),
+                cyanR: gl.getUniformLocation(program, 'u_cyanR'),
+                contrast: gl.getUniformLocation(program, 'u_contrast'),
+                blackThreshold: gl.getUniformLocation(program, 'u_blackThreshold'),
+                midpoint: gl.getUniformLocation(program, 'u_midpoint'),
+                colorIntensity: gl.getUniformLocation(program, 'u_colorIntensity'),
+                lineFreq: gl.getUniformLocation(program, 'u_lineFreq'),
+                lineSharpness: gl.getUniformLocation(program, 'u_lineSharpness')
+            };
+
+            // Buffer
+            const positions = new Float32Array([
+                -1, -1, 1, -1, -1, 1,
+                -1, 1, 1, -1, 1, 1
+            ]);
+            const buffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+
+            const posLoc = gl.getAttribLocation(program, 'a_position');
+            gl.enableVertexAttribArray(posLoc);
+            gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+        }
+
+        function createShader(type, source) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                console.error('Shader error:', gl.getShaderInfoLog(shader));
+                return null;
+            }
+            return shader;
+        }
+
+        function resize() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const dpr = Math.min(window.devicePixelRatio, 2) / state.resolution;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+            gl.viewport(0, 0, canvas.width, canvas.height);
+        }
+
+        function render(timestamp) {
+            // FPS
+            frameCount++;
+            if (timestamp - lastTime >= 1000) {
+                fps = frameCount;
+                frameCount = 0;
+                lastTime = timestamp;
+                document.getElementById('fps-counter').textContent = `FPS: ${fps}`;
+            }
+
+            animTime = timestamp * 0.001;
+
+            // Smooth mouse
+            const smooth = state.mouseSmooth * 0.01;
+            mouse.sx += (mouse.x - mouse.sx) * smooth;
+            mouse.sy += (mouse.y - mouse.sy) * smooth;
+
+            gl.useProgram(program);
+
+            gl.uniform2f(uniforms.resolution, canvas.width, canvas.height);
+            gl.uniform1f(uniforms.time, animTime);
+            gl.uniform2f(uniforms.mouse, mouse.sx, mouse.sy);
+            gl.uniform1f(uniforms.waveAmp, state.waveAmp);
+            gl.uniform1f(uniforms.waveSpeed, state.waveSpeed);
+            gl.uniform1f(uniforms.noiseScale, state.noiseScale);
+            gl.uniform1f(uniforms.noiseTimeX, state.noiseTimeX);
+            gl.uniform1f(uniforms.noiseTimeY, state.noiseTimeY);
+            gl.uniform1i(uniforms.octaves, state.octaves);
+            gl.uniform1f(uniforms.noise2Mix, state.noise2Mix);
+            gl.uniform1f(uniforms.noise2Scale, state.noise2Scale);
+            gl.uniform1f(uniforms.mouseEffect, state.mouseEffect);
+            gl.uniform1f(uniforms.mouseRadius, state.mouseRadius);
+            gl.uniform1f(uniforms.mouseWaveFreq, state.mouseWaveFreq);
+            gl.uniform1f(uniforms.mouseWaveSpeed, state.mouseWaveSpeed);
+            gl.uniform1f(uniforms.pink, state.pink);
+            gl.uniform1f(uniforms.cyan, state.cyan);
+            gl.uniform1f(uniforms.pinkG, state.pinkG);
+            gl.uniform1f(uniforms.pinkB, state.pinkB);
+            gl.uniform1f(uniforms.cyanR, state.cyanR);
+            gl.uniform1f(uniforms.contrast, state.contrast);
+            gl.uniform1f(uniforms.blackThreshold, state.blackThreshold);
+            gl.uniform1f(uniforms.midpoint, state.midpoint);
+            gl.uniform1f(uniforms.colorIntensity, state.colorIntensity);
+            gl.uniform1f(uniforms.lineFreq, state.lineFreq);
+            gl.uniform1f(uniforms.lineSharpness, state.lineSharpness);
+
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+            requestAnimationFrame(render);
+        }
+
+        // Controls
+        function setupControls() {
+            const controls = [
+                'waveAmp', 'waveSpeed', 'noiseTimeX', 'noiseTimeY',
+                'noiseScale', 'octaves', 'noise2Mix', 'noise2Scale',
+                'mouseEffect', 'mouseRadius', 'mouseSmooth', 'mouseWaveFreq', 'mouseWaveSpeed',
+                'pink', 'cyan', 'pinkG', 'pinkB', 'cyanR', 'contrast', 'blackThreshold', 'midpoint', 'colorIntensity',
+                'lineFreq', 'lineSharpness', 'resolution'
+            ];
+
+            controls.forEach(id => {
+                const input = document.getElementById(id);
+                const valueEl = document.getElementById(id + '-val');
+
+                input.addEventListener('input', () => {
+                    const val = parseFloat(input.value);
+                    state[id] = val;
+                    valueEl.textContent = val;
+
+                    if (id === 'resolution') {
+                        resize();
+                    }
+
+                    updateOutput();
+                });
+            });
+        }
+
+        function applyPreset(name) {
+            const preset = presets[name];
+            if (!preset) return;
+
+            Object.keys(preset).forEach(key => {
+                state[key] = preset[key];
+                const input = document.getElementById(key);
+                const valueEl = document.getElementById(key + '-val');
+                if (input && valueEl) {
+                    input.value = preset[key];
+                    valueEl.textContent = preset[key];
+                }
+            });
+
+            // Update active preset button
+            document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            resize();
+            updateOutput();
+        }
+
+        function updateOutput() {
+            const config = {
+                waveAmp: state.waveAmp,
+                waveSpeed: state.waveSpeed,
+                noiseScale: state.noiseScale,
+                octaves: state.octaves,
+                mouseEffect: state.mouseEffect,
+                mouseRadius: state.mouseRadius,
+                mouseSmooth: state.mouseSmooth,
+                contrast: state.contrast,
+                pink: state.pink,
+                cyan: state.cyan,
+                blackThreshold: state.blackThreshold,
+                midpoint: state.midpoint,
+                resolution: state.resolution,
+                // Extended config
+                noiseTimeX: state.noiseTimeX,
+                noiseTimeY: state.noiseTimeY,
+                noise2Mix: state.noise2Mix,
+                noise2Scale: state.noise2Scale,
+                mouseWaveFreq: state.mouseWaveFreq,
+                mouseWaveSpeed: state.mouseWaveSpeed,
+                pinkG: state.pinkG,
+                pinkB: state.pinkB,
+                cyanR: state.cyanR,
+                colorIntensity: state.colorIntensity,
+                lineFreq: state.lineFreq,
+                lineSharpness: state.lineSharpness
+            };
+
+            const json = JSON.stringify(config, null, 2);
+            document.getElementById('output').textContent = json;
+        }
+
+        function copyConfig() {
+            const output = document.getElementById('output').textContent;
+            navigator.clipboard.writeText(output).then(() => {
+                const btn = document.getElementById('copy-btn');
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy Config';
+                    btn.classList.remove('copied');
+                }, 1500);
+            });
+        }
+
+        // Mouse tracking
+        document.querySelector('.preview-area').addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = (e.clientX - rect.left) / rect.width;
+            mouse.y = 1.0 - (e.clientY - rect.top) / rect.height;
+        });
+
+        // Init
+        window.addEventListener('resize', resize);
+        initWebGL();
+        resize();
+        setupControls();
+        updateOutput();
+        requestAnimationFrame(render);
+    </script>
+</body>
+</html>

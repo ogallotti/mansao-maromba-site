@@ -1,0 +1,183 @@
+:root {
+    --void-black: #050505;
+    --off-charcoal: #121212;
+    --titanium-white: #EAEAEA;
+    --maromba-gold: #D4AF37;
+    --cyber-purple: #BC13FE;
+    --toxic-green: #39FF14;
+    --error-red: #FF003C;
+    
+    --font-heading: 'Unbounded', sans-serif;
+    --font-body: 'Space Grotesk', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--void-black);
+    color: var(--titanium-white);
+    font-family: var(--font-body);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Preloader */
+.preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: var(--void-black);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.preloader-content {
+    text-align: center;
+}
+
+.counter {
+    font-family: var(--font-mono);
+    font-size: 8rem;
+    font-weight: 700;
+    color: var(--toxic-green);
+    line-height: 1;
+}
+
+.glitch-text {
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    letter-spacing: 0.2em;
+    color: var(--titanium-white);
+    min-height: 1.5em; /* Prevent jump */
+}
+
+/* Hero Section */
+.hero {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.hero-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.6; /* Darken for text readability */
+    /* Enhance the cyberpunk look */
+    filter: contrast(1.2) brightness(0.8);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1000px;
+}
+
+.hero-title {
+    font-family: var(--font-heading);
+    font-size: clamp(3rem, 15vw, 12rem);
+    font-weight: 900;
+    line-height: 0.8;
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.hero-title.back {
+    z-index: 1;
+    -webkit-text-stroke: 2px var(--titanium-white);
+    color: transparent;
+    opacity: 0.5;
+}
+
+.hero-title.front {
+    z-index: 3;
+    color: var(--titanium-white);
+    mix-blend-mode: overlay; /* Experiment */
+}
+
+.hero-bottle-container {
+    position: absolute;
+    z-index: 2; /* Between titles */
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+}
+
+.bottle-hero {
+    height: 60vh; /* Adjust based on asset */
+    width: auto;
+    filter: drop-shadow(0 0 20px rgba(0,0,0,0.5));
+    transform-origin: center center;
+}
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--toxic-green);
+    animation: blink 2s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* Transition / Next Section */
+.transition-zone {
+    height: 100vh;
+    background-color: var(--void-black);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 5;
+}
+
+.transition-title {
+    font-family: var(--font-heading);
+    font-size: 5rem;
+    text-align: center;
+    color: var(--maromba-gold);
+    opacity: 0; /* Hidden initially */
+    transform: translateY(50px);
+}
