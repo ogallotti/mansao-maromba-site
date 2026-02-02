@@ -16,9 +16,58 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
+
+    <!-- Hand Tracking Webcam (debug overlay) -->
+    <video id="webcam" playsinline style="
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 240px;
+        height: 180px;
+        z-index: 9500;
+        opacity: 0.6;
+        border-radius: 12px;
+        border: 2px solid rgba(0, 255, 255, 0.5);
+        transform: scaleX(-1);
+        pointer-events: none;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    "></video>
+
+    <!-- Debug info panel -->
+    <div id="debugPanel" style="
+        position: fixed;
+        bottom: 210px;
+        right: 20px;
+        width: 240px;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #0ff;
+        font-family: monospace;
+        font-size: 12px;
+        border-radius: 8px;
+        z-index: 9500;
+        pointer-events: none;
+    ">
+        <div>Grab: <span id="debugGrab">-</span></div>
+        <div>Rotation: <span id="debugRotation">-</span></div>
+        <div>Hovering: <span id="debugHover">-</span></div>
+        <div>Controlling: <span id="debugControl">-</span></div>
+    </div>
+
+    <!-- Hand Cursors (Glassmorphism Water Drop) -->
+    <div class="hand-cursor" id="handCursor0">
+        <div class="hand-cursor-inner"></div>
+    </div>
+    <div class="hand-cursor" id="handCursor1">
+        <div class="hand-cursor-inner"></div>
+    </div>
 
     <!-- LAYER 3: Glitch Effects -->
     <div class="scanlines"></div>
@@ -484,7 +533,8 @@
                 const planeMat = new THREE.ShaderMaterial({
                     uniforms: {
                         map: { value: texture },
-                        whiteThreshold: { value: 0.9 }
+                        whiteThreshold: { value: 0.9 },
+                        opacity: { value: 1.0 }
                     },
                     vertexShader: `
                         varying vec2 vUv;
@@ -496,6 +546,7 @@
                     fragmentShader: `
                         uniform sampler2D map;
                         uniform float whiteThreshold;
+                        uniform float opacity;
                         varying vec2 vUv;
                         void main() {
                             vec4 texColor = texture2D(map, vUv);
@@ -503,7 +554,7 @@
                             float alpha = texColor.a;
                             if (brightness > whiteThreshold) alpha = 0.0;
                             if (texColor.r > 0.85 && texColor.g > 0.85 && texColor.b > 0.85) alpha = 0.0;
-                            gl_FragColor = vec4(texColor.rgb, alpha);
+                            gl_FragColor = vec4(texColor.rgb, alpha * opacity);
                         }
                     `,
                     transparent: true,
@@ -720,8 +771,8 @@
                             gsap.to(bottle.scale, { x: scale, y: scale, duration: 0.2 });
                             gsap.to(bottle.position, { z: z, duration: 0.2 });
 
-                            // Add subtle float during scroll
-                            if (bottle.userData.mesh) {
+                            // Add subtle float during scroll (only if not being controlled by hand)
+                            if (bottle.userData.mesh && !bottle.userData.isBeingControlled) {
                                 const scrollFloat = Math.sin(progress * 25 + i * 2) * 0.08;
                                 const scrollSway = Math.cos(progress * 20 + i * 2) * 0.02;
                                 bottle.userData.mesh.position.y = scrollFloat;
@@ -877,7 +928,8 @@
                                 gsap.to(bottle.scale, { x: scale, y: scale, duration: 0.2 });
                                 gsap.to(bottle.position, { z: z, duration: 0.2 });
 
-                                if (bottle.userData.mesh) {
+                                // Only apply scroll effects if not being controlled by hand
+                                if (bottle.userData.mesh && !bottle.userData.isBeingControlled) {
                                     const scrollFloat = Math.sin(progress * 25 + i * 2) * 0.15;
                                     const scrollSway = Math.cos(progress * 20 + i * 2) * 0.05;
                                     bottle.userData.mesh.position.y = scrollFloat;
@@ -1279,32 +1331,52 @@
                 // Only animate if floating is active (Hero)
                 if (!data.mesh || !data.floatStrength || data.floatStrength <= 0.01) return;
 
+                // SKIP rotation if this bottle is being controlled by hand
+                if (data.isBeingControlled) {
+                    // Only apply minimal float Y, keep hand-controlled rotation
+                    const handMultiplier = data.handModeFloatMultiplier !== undefined ? data.handModeFloatMultiplier : 1.0;
+                    const floatY = Math.sin(elapsedTime * 2 + data.phaseY) * 0.05 * handMultiplier;
+                    data.mesh.position.y = floatY * data.floatStrength;
+                    return;
+                }
+
                 const strength = data.floatStrength;
+                // Hand mode multiplier - reduces automatic movement when hands are active
+                const handMultiplier = data.handModeFloatMultiplier !== undefined ? data.handModeFloatMultiplier : 1.0;
 
-                // 1. Base Float & Sway
-                let floatY = Math.sin(elapsedTime * 2 + data.phaseY) * 0.1;
-                let rotateZ = Math.sin(elapsedTime * 1.5 + data.phaseY) * 0.05;
+                // 1. Base Float & Sway (reduced when hands active)
+                let floatY = Math.sin(elapsedTime * 2 + data.phaseY) * 0.1 * handMultiplier;
+                let rotateZ = Math.sin(elapsedTime * 1.5 + data.phaseY) * 0.05 * handMultiplier;
 
-                // 2. Mouse Interaction (Repulsion & Tilt)
-                // Map mouse to approx world coordinates at Z=0
-                const mouseWX = heroMouse.x * 8.0;
-                const mouseWY = heroMouse.y * 4.5;
+                // 2. Mouse/Hand Interaction (Repulsion & Tilt)
+                // Only apply mouse interaction when hands are NOT active (to not compete with hand control)
+                if (!handsAreActive) {
+                    // Map mouse to approx world coordinates at Z=0
+                    const mouseWX = heroMouse.x * 8.0;
+                    const mouseWY = heroMouse.y * 4.5;
 
-                const dx = mouseWX - bottle.position.x;
-                const dy = mouseWY - bottle.position.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
+                    const dx = mouseWX - bottle.position.x;
+                    const dy = mouseWY - bottle.position.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
 
-                if (dist < 3.0) {
-                    const force = (3.0 - dist) * 0.2; // Gentle force
-                    // Push Y (Repel vertical)
-                    floatY -= (dy / dist) * force;
-                    // Tilt (Rotate based on horizontal push)
-                    rotateZ -= (dx / dist) * force * 0.8;
+                    if (dist < 3.0) {
+                        const force = (3.0 - dist) * 0.2; // Gentle force
+                        // Push Y (Repel vertical)
+                        floatY -= (dy / dist) * force;
+                        // Tilt (Rotate based on horizontal push)
+                        rotateZ -= (dx / dist) * force * 0.8;
+                    }
                 }
 
                 // Apply weighted by transition strength
                 data.mesh.position.y = floatY * strength;
                 data.mesh.rotation.z = rotateZ * strength;
+
+                // Apply hover scale (smoothly interpolate to target)
+                const targetScale = data.hoverScale || 1.0;
+                const currentScale = data.mesh.scale.x;
+                const newScale = currentScale + (targetScale - currentScale) * 0.1;
+                data.mesh.scale.set(newScale, newScale, 1);
             });
         }
 
@@ -1389,6 +1461,701 @@
                 }, 150);
             }
         }, 100);
+
+        // ============================================
+        // HAND TRACKING WITH MEDIAPIPE
+        // ============================================
+
+        const handTrackingEnabled = window.innerWidth > 768; // Only on desktop
+
+        // Global flag for hand detection state
+        let handsAreActive = false;
+        const heroOverlay = document.querySelector('.hero-section .overlay');
+        const scrollHint = document.querySelector('.scroll-hint');
+
+        // Function to toggle hero UI visibility based on hand detection
+        function setHandsActiveState(active) {
+            if (handsAreActive === active) return;
+            handsAreActive = active;
+
+            if (active) {
+                // Hands detected - hide hero UI, reduce bottle movement
+                if (heroOverlay) {
+                    heroOverlay.style.transition = 'opacity 0.5s ease';
+                    heroOverlay.style.opacity = '0';
+                }
+                if (scrollHint) {
+                    scrollHint.style.transition = 'opacity 0.5s ease';
+                    scrollHint.style.opacity = '0';
+                }
+                // Dramatically reduce floating animation
+                bottles.forEach(bottle => {
+                    if (bottle.userData) {
+                        bottle.userData.handModeFloatMultiplier = 0.1; // 10% of normal movement
+                    }
+                });
+            } else {
+                // No hands - restore hero UI
+                if (heroOverlay) {
+                    heroOverlay.style.opacity = '1';
+                }
+                if (scrollHint) {
+                    scrollHint.style.opacity = '0.7';
+                }
+                // Restore normal floating
+                bottles.forEach(bottle => {
+                    if (bottle.userData) {
+                        bottle.userData.handModeFloatMultiplier = 1.0;
+                    }
+                });
+            }
+        }
+
+        if (handTrackingEnabled) {
+            // Hand state for each hand (max 2)
+            const handStates = [
+                {
+                    cursor: document.getElementById('handCursor0'),
+                    smoothX: 0, smoothY: 0, // Smoothed cursor coordinates
+                    rawX: 0, rawY: 0, // Raw hand position (always updated)
+                    handRotation: 0, // Current hand rotation angle
+                    baseHandRotation: 0, // Hand rotation when grab started
+                    currentBottleRotation: 0, // Current rotation applied to bottle (for debug)
+                    grabStartX: 0, grabStartY: 0, // Hand position when grab started
+                    bottleStartX: 0, bottleStartY: 0, // Bottle position when grab started
+                    isGrabbing: false,
+                    grabStrength: 0, // 0-1 how closed the hand is
+                    grabbedBottle: null,
+                    visible: false
+                },
+                {
+                    cursor: document.getElementById('handCursor1'),
+                    smoothX: 0, smoothY: 0,
+                    rawX: 0, rawY: 0,
+                    handRotation: 0,
+                    baseHandRotation: 0,
+                    currentBottleRotation: 0,
+                    grabStartX: 0, grabStartY: 0,
+                    bottleStartX: 0, bottleStartY: 0,
+                    isGrabbing: false,
+                    grabStrength: 0,
+                    grabbedBottle: null,
+                    visible: false
+                }
+            ];
+
+            // MediaPipe landmark indices
+            const THUMB_TIP = 4;
+            const INDEX_TIP = 8;
+            const MIDDLE_TIP = 12;
+            const PALM_BASE = 0;
+            const INDEX_MCP = 5; // Base of index finger
+
+            // Calculate distance between two landmarks
+            function landmarkDistance(landmarks, idx1, idx2) {
+                const dx = landmarks[idx1].x - landmarks[idx2].x;
+                const dy = landmarks[idx1].y - landmarks[idx2].y;
+                return Math.sqrt(dx * dx + dy * dy);
+            }
+
+            // Thresholds for grab/release hysteresis
+            const GRAB_THRESHOLD = 0.4;    // Need this much to START grabbing
+            const RELEASE_THRESHOLD = 0.2; // Need to go below this to RELEASE
+
+            // Calculate grab strength (0 = fully open, 1 = fully closed)
+            // Simplified: based on pinch distance and finger curl
+            function calculateGrabStrength(landmarks) {
+                // 1. Pinch strength (thumb to index distance)
+                const thumbIndexDist = landmarkDistance(landmarks, THUMB_TIP, INDEX_TIP);
+                const palmSize = landmarkDistance(landmarks, PALM_BASE, INDEX_MCP);
+                const pinchStrength = 1 - Math.min(thumbIndexDist / palmSize, 1);
+
+                // 2. Finger curl strength (how many fingers are curled)
+                const curled = [
+                    landmarks[8].y > landmarks[6].y,   // Index: tip below PIP
+                    landmarks[12].y > landmarks[10].y, // Middle
+                    landmarks[16].y > landmarks[14].y, // Ring
+                    landmarks[20].y > landmarks[18].y  // Pinky
+                ].filter(c => c).length;
+                const curlStrength = curled / 4;
+
+                // Return the maximum of both methods
+                return Math.max(pinchStrength, curlStrength);
+            }
+
+            // Get palm center position
+            function getPalmCenter(landmarks) {
+                // Average of palm base and middle finger MCP
+                const x = (landmarks[PALM_BASE].x + landmarks[9].x) / 2;
+                const y = (landmarks[PALM_BASE].y + landmarks[9].y) / 2;
+                return { x, y };
+            }
+
+            // Calculate hand rotation (wrist rotation - like turning a faucet)
+            function getHandRotation(landmarks) {
+                // For wrist rotation (supination/pronation), we use the angle of the
+                // line connecting index MCP (5) to pinky MCP (17) - the knuckle line
+                // This rotates when you twist your wrist like turning a faucet
+                const indexMCP = landmarks[5];
+                const pinkyMCP = landmarks[17];
+
+                // Calculate angle of the knuckle line
+                const dx = pinkyMCP.x - indexMCP.x;
+                const dy = pinkyMCP.y - indexMCP.y;
+
+                // atan2 gives us the angle in radians
+                const angle = Math.atan2(dy, dx);
+
+                return angle;
+            }
+
+            // Detect if palm is clearly facing camera with fingers extended
+            // Only returns true for clear "open palm facing camera" gesture
+            function isPalmOpenAndFacingCamera(landmarks) {
+                // 1. Check if all 4 fingers are extended (tip above PIP)
+                const fingersExtended = [
+                    landmarks[8].y < landmarks[6].y,   // Index
+                    landmarks[12].y < landmarks[10].y, // Middle
+                    landmarks[16].y < landmarks[14].y, // Ring
+                    landmarks[20].y < landmarks[18].y  // Pinky
+                ];
+                const allFingersExtended = fingersExtended.every(e => e);
+
+                // 2. Check if thumb is spread out (away from palm)
+                const thumbSpread = landmarkDistance(landmarks, 4, 5) > landmarkDistance(landmarks, 0, 5) * 0.5;
+
+                // 3. Check if knuckle line is relatively horizontal (palm facing camera, not sideways)
+                const knuckleAngle = Math.abs(getHandRotation(landmarks));
+                const isHorizontal = knuckleAngle < 0.5 || knuckleAngle > Math.PI - 0.5; // Within ~30° of horizontal
+
+                // 4. Check finger spread (fingers apart from each other)
+                const fingerSpread = landmarkDistance(landmarks, 8, 20); // Index tip to pinky tip
+                const palmSize = landmarkDistance(landmarks, 0, 9);
+                const isFingersSpread = fingerSpread > palmSize * 0.8;
+
+                // All conditions must be true for "palm open facing camera"
+                return allFingersExtended && thumbSpread && isHorizontal && isFingersSpread;
+            }
+
+            // Find bottle under cursor using screen-space distance (more reliable than raycasting for 2D sprites)
+            function getBottleUnderCursor(screenX, screenY) {
+                let closestBottle = null;
+                let closestDist = Infinity;
+                const threshold = 300; // pixels - large area for easier detection
+
+                bottles.forEach((bottle, idx) => {
+                    if (!bottle.userData.mesh) return;
+
+                    // Get bottle world position - bottles are children of bottlesGroup
+                    // So we need to manually calculate world position
+                    const worldX = bottle.position.x + bottlesGroup.position.x;
+                    const worldY = bottle.position.y + bottlesGroup.position.y;
+                    const worldZ = bottle.position.z + bottlesGroup.position.z;
+
+                    // Create vector for projection
+                    const worldPos = new THREE.Vector3(worldX, worldY, worldZ);
+
+                    // Project to screen coordinates
+                    const screenPos = worldPos.clone().project(camera);
+                    const bottleScreenX = (screenPos.x + 1) / 2 * window.innerWidth;
+                    const bottleScreenY = (-screenPos.y + 1) / 2 * window.innerHeight;
+
+                    // Calculate distance
+                    const dx = screenX - bottleScreenX;
+                    const dy = screenY - bottleScreenY;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < threshold && dist < closestDist) {
+                        closestDist = dist;
+                        closestBottle = bottle;
+                    }
+                });
+
+                return closestBottle;
+            }
+
+            // Get the absolute closest bottle (no distance threshold)
+            function getClosestBottle(screenX, screenY) {
+                let closestBottle = null;
+                let closestDist = Infinity;
+
+                bottles.forEach((bottle) => {
+                    if (!bottle.userData.mesh) return;
+
+                    const worldX = bottle.position.x + bottlesGroup.position.x;
+                    const worldY = bottle.position.y + bottlesGroup.position.y;
+                    const worldZ = bottle.position.z + bottlesGroup.position.z;
+
+                    const worldPos = new THREE.Vector3(worldX, worldY, worldZ);
+                    const screenPos = worldPos.clone().project(camera);
+                    const bottleScreenX = (screenPos.x + 1) / 2 * window.innerWidth;
+                    const bottleScreenY = (-screenPos.y + 1) / 2 * window.innerHeight;
+
+                    const dx = screenX - bottleScreenX;
+                    const dy = screenY - bottleScreenY;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < closestDist) {
+                        closestDist = dist;
+                        closestBottle = bottle;
+                    }
+                });
+
+                console.log('Closest bottle (no limit):', closestBottle?.userData.index, 'dist:', closestDist.toFixed(0));
+                return closestBottle;
+            }
+
+            // Update hand cursor position and state
+            function updateHandState(handIndex, landmarks) {
+                const state = handStates[handIndex];
+                const palm = getPalmCenter(landmarks);
+
+                // MediaPipe returns mirrored coordinates (0-1, flipped)
+                // Convert to screen coordinates
+                const screenX = (1 - palm.x) * window.innerWidth;
+                const screenY = palm.y * window.innerHeight;
+
+                // Calculate grab strength (0-1)
+                state.grabStrength = calculateGrabStrength(landmarks);
+                const wasGrabbing = state.isGrabbing;
+
+                // GRAB LOGIC:
+                // - To START grab: need grabStrength > GRAB_THRESHOLD (0.4)
+                // - To RELEASE: need palm clearly open AND facing camera
+                // This prevents accidental release when hand turns sideways or backwards
+                if (state.grabbedBottle) {
+                    // Already holding - only release if palm is clearly open and facing camera
+                    const shouldRelease = isPalmOpenAndFacingCamera(landmarks);
+                    state.isGrabbing = !shouldRelease;
+                } else {
+                    // Not holding - need to close hand to grab
+                    state.isGrabbing = state.grabStrength > GRAB_THRESHOLD;
+                }
+
+                // RAW hand position (always updated)
+                state.rawX = screenX;
+                state.rawY = screenY;
+
+                // Calculate hand rotation
+                state.handRotation = getHandRotation(landmarks);
+
+                // CURSOR position - only update if NOT grabbing a bottle
+                if (!state.grabbedBottle) {
+                    // Smooth the movement
+                    const smoothFactor = 0.3;
+                    state.smoothX += (screenX - state.smoothX) * smoothFactor;
+                    state.smoothY += (screenY - state.smoothY) * smoothFactor;
+
+                    // Update cursor position
+                    state.cursor.style.left = state.smoothX + 'px';
+                    state.cursor.style.top = state.smoothY + 'px';
+                }
+                // When grabbing, cursor stays locked in place (cursor position not updated)
+
+                // Show cursor
+                if (!state.visible) {
+                    state.visible = true;
+                    state.cursor.classList.add('active');
+                }
+
+                // Update cursor grab state
+                if (state.isGrabbing) {
+                    state.cursor.classList.add('grabbing');
+                } else {
+                    state.cursor.classList.remove('grabbing');
+                }
+
+                // Debug: show grab strength visually (scale inner element)
+                const inner = state.cursor.querySelector('.hand-cursor-inner');
+                if (inner) {
+                    // Inner circle grows with grab strength
+                    const scale = 1 + state.grabStrength * 2;
+                    inner.style.transform = `rotate(-30deg) scale(${scale})`;
+                    inner.style.opacity = 0.4 + state.grabStrength * 0.6;
+                }
+
+                // --- BOTTLE INTERACTION ---
+
+                // Get bottle under cursor
+                const bottleUnderCursor = getBottleUnderCursor(state.smoothX, state.smoothY);
+
+                // Handle hover effect - make bottle bigger when hovering
+                if (bottleUnderCursor && !state.isGrabbing) {
+                    state.cursor.classList.add('hovering');
+                    // Scale up the hovered bottle
+                    bottleUnderCursor.userData.hoverScale = 1.3;
+                } else {
+                    state.cursor.classList.remove('hovering');
+                }
+
+                // Reset hover scale on all bottles not being hovered
+                bottles.forEach(bottle => {
+                    if (bottle !== bottleUnderCursor && bottle !== state.grabbedBottle) {
+                        if (bottle.userData) {
+                            bottle.userData.hoverScale = 1.0;
+                        }
+                    }
+                });
+
+                // Handle grab start - grab if near ANY bottle when closing hand
+                if (state.isGrabbing && !wasGrabbing) {
+                    // Try to grab the closest bottle (not just one directly under cursor)
+                    const bottleToGrab = bottleUnderCursor || getClosestBottle(state.smoothX, state.smoothY);
+                    if (bottleToGrab) {
+                        // Check if bottle is not already grabbed by another hand
+                        const otherHand = handStates[1 - handIndex];
+                        if (otherHand.grabbedBottle !== bottleToGrab) {
+                            state.grabbedBottle = bottleToGrab;
+
+                            // Save initial positions for relative movement
+                            state.grabStartX = state.rawX;
+                            state.grabStartY = state.rawY;
+                            state.baseHandRotation = state.handRotation;
+
+                            // Save bottle's initial position
+                            state.bottleStartX = bottleToGrab.position.x;
+                            state.bottleStartY = bottleToGrab.position.y;
+
+                            // Mark bottle as being controlled
+                            bottleToGrab.userData.isBeingControlled = true;
+                            bottleToGrab.userData.hoverScale = 1.4;
+
+                            // Explode other bottles away from selected one
+                            const epicenterX = bottleToGrab.position.x;
+                            const epicenterY = bottleToGrab.position.y;
+
+                            bottles.forEach(b => {
+                                if (b !== bottleToGrab) {
+                                    // Save original position for return animation
+                                    b.userData.savedPosX = b.position.x;
+                                    b.userData.savedPosY = b.position.y;
+
+                                    // Calculate direction away from epicenter
+                                    let dx = b.position.x - epicenterX;
+                                    let dy = b.position.y - epicenterY;
+                                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                                    // Normalize and scale to push off screen
+                                    if (dist > 0.1) {
+                                        dx = dx / dist;
+                                        dy = dy / dist;
+                                    } else {
+                                        // If too close, push in random direction
+                                        const angle = Math.random() * Math.PI * 2;
+                                        dx = Math.cos(angle);
+                                        dy = Math.sin(angle);
+                                    }
+
+                                    // Push far off screen (15 units should be enough)
+                                    const pushDistance = 15;
+                                    gsap.to(b.position, {
+                                        x: b.position.x + dx * pushDistance,
+                                        y: b.position.y + dy * pushDistance,
+                                        duration: 0.5,
+                                        ease: "power2.out"
+                                    });
+
+                                    // Also fade out for extra effect
+                                    if (b.userData.mesh && b.userData.mesh.material && b.userData.mesh.material.uniforms) {
+                                        gsap.to(b.userData.mesh.material.uniforms.opacity, {
+                                            value: 0,
+                                            duration: 0.3,
+                                            ease: "power2.out"
+                                        });
+                                    }
+                                }
+                            });
+
+                            console.log('✅ Grabbed bottle:', bottleToGrab.userData.index);
+                            state.cursor.classList.add('controlling');
+                        }
+                    } else {
+                        console.log('❌ No bottle found to grab');
+                    }
+                }
+
+                // Handle grab release
+                if (!state.isGrabbing && wasGrabbing) {
+                    if (state.grabbedBottle) {
+                        const bottle = state.grabbedBottle;
+                        console.log('Released bottle:', bottle.userData.index);
+
+                        // Unmark bottle as being controlled
+                        bottle.userData.isBeingControlled = false;
+                        bottle.userData.hoverScale = 1.0;
+
+                        // Smoothly return bottle to original position
+                        gsap.to(bottle.position, {
+                            x: state.bottleStartX,
+                            y: state.bottleStartY,
+                            duration: 0.6,
+                            ease: "elastic.out(1, 0.5)"
+                        });
+
+                        // Smoothly return rotation to neutral
+                        if (bottle.userData.mesh) {
+                            gsap.to(bottle.userData.mesh.rotation, {
+                                z: 0,
+                                duration: 0.5,
+                                ease: "power2.out"
+                            });
+                        }
+
+                        // Bring other bottles back to their positions
+                        bottles.forEach(b => {
+                            if (b !== bottle && b.userData.savedPosX !== undefined) {
+                                gsap.to(b.position, {
+                                    x: b.userData.savedPosX,
+                                    y: b.userData.savedPosY,
+                                    duration: 0.6,
+                                    ease: "elastic.out(1, 0.5)"
+                                });
+
+                                // Fade back in
+                                if (b.userData.mesh && b.userData.mesh.material && b.userData.mesh.material.uniforms) {
+                                    gsap.to(b.userData.mesh.material.uniforms.opacity, {
+                                        value: 1,
+                                        duration: 0.3,
+                                        ease: "power2.out"
+                                    });
+                                }
+                            }
+                        });
+                    }
+                    state.grabbedBottle = null;
+                    state.cursor.classList.remove('controlling');
+                }
+
+                // Handle bottle movement and rotation while grabbed
+                if (state.isGrabbing && state.grabbedBottle) {
+                    const bottle = state.grabbedBottle;
+
+                    // === TRANSLATION: Move bottle with hand ===
+                    // Calculate how much the hand moved since grab started (in screen pixels)
+                    const handDeltaX = state.rawX - state.grabStartX;
+                    const handDeltaY = state.rawY - state.grabStartY;
+
+                    // Convert screen movement to 3D world movement
+                    const screenToWorld = 0.012;
+
+                    // Target position (where bottle should go)
+                    const targetX = state.bottleStartX + (handDeltaX * screenToWorld);
+                    const targetY = state.bottleStartY - (handDeltaY * screenToWorld);
+
+                    // Smooth movement (lerp towards target)
+                    const moveSmoothFactor = 0.15;
+                    bottle.position.x += (targetX - bottle.position.x) * moveSmoothFactor;
+                    bottle.position.y += (targetY - bottle.position.y) * moveSmoothFactor;
+
+                    // === ROTATION: Absolute hand angle (0° = fingers up) ===
+                    if (bottle.userData.mesh) {
+                        // handRotation is the angle of the knuckle line
+                        // Offset by π to align bottle upright when hand is normal
+                        const targetAngle = state.handRotation + Math.PI;
+
+                        // Smooth rotation to reduce stutters from detection glitches
+                        const currentAngle = bottle.userData.mesh.rotation.z;
+                        const rotationSmoothFactor = 0.15;
+
+                        // Handle angle wrapping (avoid spinning 360° the wrong way)
+                        let angleDiff = targetAngle - currentAngle;
+                        if (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+                        if (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+
+                        const smoothedAngle = currentAngle + angleDiff * rotationSmoothFactor;
+                        bottle.userData.mesh.rotation.z = smoothedAngle;
+
+                        // Store for debug (0-360° range)
+                        let deg = smoothedAngle * 180 / Math.PI;
+                        if (deg < 0) deg += 360;
+                        if (deg >= 360) deg -= 360;
+                        state.currentBottleRotation = deg;
+                    }
+
+                    // Update cursor to follow bottle (visual feedback)
+                    const worldPos = new THREE.Vector3(
+                        bottle.position.x + bottlesGroup.position.x,
+                        bottle.position.y + bottlesGroup.position.y,
+                        bottle.position.z + bottlesGroup.position.z
+                    );
+                    const screenPos = worldPos.clone().project(camera);
+                    const cursorX = (screenPos.x + 1) / 2 * window.innerWidth;
+                    const cursorY = (-screenPos.y + 1) / 2 * window.innerHeight;
+                    state.cursor.style.left = cursorX + 'px';
+                    state.cursor.style.top = cursorY + 'px';
+                }
+
+                // Update wave background mouse position with hand
+                if (vibrantWaves && handIndex === 0) {
+                    vibrantWaves.mouse.x = state.smoothX / window.innerWidth;
+                    vibrantWaves.mouse.y = 1 - (state.smoothY / window.innerHeight);
+                }
+
+                // Update Three.js hero mouse for floating effect
+                if (handIndex === 0) {
+                    heroMouse.x = (state.smoothX / window.innerWidth) * 2 - 1;
+                    heroMouse.y = -(state.smoothY / window.innerHeight) * 2 + 1;
+                }
+
+                // Update debug panel (only for first hand)
+                if (handIndex === 0) {
+                    const debugGrab = document.getElementById('debugGrab');
+                    const debugRotation = document.getElementById('debugRotation');
+                    const debugHover = document.getElementById('debugHover');
+                    const debugControl = document.getElementById('debugControl');
+                    if (debugGrab) debugGrab.textContent = `${(state.grabStrength * 100).toFixed(0)}% ${state.isGrabbing ? '🤏' : '✋'}`;
+                    // Show absolute hand/bottle rotation (0-360°)
+                    const bottleRotDeg = state.grabbedBottle && state.currentBottleRotation !== undefined
+                        ? state.currentBottleRotation.toFixed(0)
+                        : '-';
+                    if (debugRotation) debugRotation.textContent = `${bottleRotDeg}°`;
+                    if (debugHover) debugHover.textContent = bottleUnderCursor ? `Bottle ${bottleUnderCursor.userData.index}` : 'none';
+                    if (debugControl) debugControl.textContent = state.grabbedBottle ? `Bottle ${state.grabbedBottle.userData.index} 🎯` : 'none';
+                }
+            }
+
+            // Hide hand cursor when not detected
+            function hideHand(handIndex) {
+                const state = handStates[handIndex];
+                if (state.visible) {
+                    state.visible = false;
+                    state.cursor.classList.remove('active', 'grabbing', 'hovering', 'controlling');
+
+                    // If holding a bottle, animate it back to original position
+                    if (state.grabbedBottle) {
+                        const bottle = state.grabbedBottle;
+
+                        // Unmark bottle as being controlled
+                        bottle.userData.isBeingControlled = false;
+                        bottle.userData.hoverScale = 1.0;
+
+                        // Smoothly return bottle to original position
+                        gsap.to(bottle.position, {
+                            x: state.bottleStartX,
+                            y: state.bottleStartY,
+                            duration: 0.6,
+                            ease: "elastic.out(1, 0.5)"
+                        });
+
+                        // Smoothly return rotation to neutral
+                        if (bottle.userData.mesh) {
+                            gsap.to(bottle.userData.mesh.rotation, {
+                                z: 0,
+                                duration: 0.5,
+                                ease: "power2.out"
+                            });
+                        }
+
+                        // Bring other bottles back to their positions
+                        bottles.forEach(b => {
+                            if (b !== bottle && b.userData.savedPosX !== undefined) {
+                                gsap.to(b.position, {
+                                    x: b.userData.savedPosX,
+                                    y: b.userData.savedPosY,
+                                    duration: 0.6,
+                                    ease: "elastic.out(1, 0.5)"
+                                });
+
+                                // Fade back in
+                                if (b.userData.mesh && b.userData.mesh.material && b.userData.mesh.material.uniforms) {
+                                    gsap.to(b.userData.mesh.material.uniforms.opacity, {
+                                        value: 1,
+                                        duration: 0.3,
+                                        ease: "power2.out"
+                                    });
+                                }
+                            }
+                        });
+
+                        console.log('Hand hidden - released bottle:', bottle.userData.index);
+                    }
+
+                    state.grabbedBottle = null;
+                }
+            }
+
+            // MediaPipe Hands callback
+            function onHandResults(results) {
+                if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                    // Hands detected - activate hand mode
+                    setHandsActiveState(true);
+
+                    // Process detected hands (max 2)
+                    results.multiHandLandmarks.forEach((landmarks, index) => {
+                        if (index < 2) {
+                            updateHandState(index, landmarks);
+                        }
+                    });
+
+                    // Hide cursors for hands not detected
+                    for (let i = results.multiHandLandmarks.length; i < 2; i++) {
+                        hideHand(i);
+                    }
+                } else {
+                    // No hands detected - deactivate hand mode
+                    setHandsActiveState(false);
+                    hideHand(0);
+                    hideHand(1);
+                }
+            }
+
+            // Initialize MediaPipe Hands
+            async function initHandTracking() {
+                const videoElement = document.getElementById('webcam');
+
+                // Request webcam permission on page load
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: {
+                            width: 640,
+                            height: 480,
+                            facingMode: 'user'
+                        }
+                    });
+                    videoElement.srcObject = stream;
+                    await videoElement.play();
+
+                    // Initialize MediaPipe Hands
+                    const hands = new Hands({
+                        locateFile: (file) => {
+                            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+                        }
+                    });
+
+                    hands.setOptions({
+                        maxNumHands: 1,
+                        modelComplexity: 1,
+                        minDetectionConfidence: 0.7,
+                        minTrackingConfidence: 0.5
+                    });
+
+                    hands.onResults(onHandResults);
+
+                    // Create camera instance
+                    const cam = new Camera(videoElement, {
+                        onFrame: async () => {
+                            await hands.send({ image: videoElement });
+                        },
+                        width: 640,
+                        height: 480
+                    });
+
+                    cam.start();
+
+                    console.log('Hand tracking initialized successfully');
+
+                } catch (error) {
+                    console.log('Webcam access denied or error:', error);
+                    // Fallback: site works normally with mouse
+                }
+            }
+
+            // Start hand tracking when page loads
+            window.addEventListener('load', () => {
+                // Small delay to not compete with other initialization
+                setTimeout(initHandTracking, 500);
+            });
+        }
 
     </script>
 </body>
