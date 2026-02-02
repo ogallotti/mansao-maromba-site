@@ -2155,6 +2155,24 @@
                 // Small delay to not compete with other initialization
                 setTimeout(initHandTracking, 500);
             });
+
+            // Toggle debug panel with "D" key
+            let debugVisible = true;
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'd' || e.key === 'D') {
+                    debugVisible = !debugVisible;
+                    const webcam = document.getElementById('webcam');
+                    const debugPanel = document.getElementById('debugPanel');
+
+                    if (debugVisible) {
+                        webcam.style.display = '';
+                        debugPanel.style.display = '';
+                    } else {
+                        webcam.style.display = 'none';
+                        debugPanel.style.display = 'none';
+                    }
+                }
+            });
         }
 
     </script>
